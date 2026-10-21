@@ -5,10 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "water_system")
 @Data
+@NoArgsConstructor
 public class WaterSystem {
 
     @Id
@@ -34,13 +36,13 @@ public class WaterSystem {
     //0 - 100, population weighted CalEnviroScreen overall percentile, higher is more burderned
     private Integer burderScore;
 
-    private Double asthmaPctl;
-    private Double povertyPctl;
-    private Double leadPctl;
-    private Double toxReleasesPctl;
-    private Double gwThreatsPctl;
-    private Double cleanupsPctl;
-    private Double pm25Pctl;
+    private Double avgAsthmaPctl;
+    private Double avgPovertyPctl;
+    private Double avgLeadPctl;
+    private Double avgToxReleasesPctl;
+    private Double avgGwThreatsPctl;
+    private Double avgCleanupsPctl;
+    private Double avgPm25Pctl;
 
     private Integer tractCount;
     private Long tractPopulation;
