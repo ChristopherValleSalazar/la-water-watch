@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ViolationRepository extends JpaRepository<Violation, String> {
+public interface ViolationRepository extends JpaRepository<Violation, Long> {
 
     List<Violation> findByPwsid(String pwsid);
 
