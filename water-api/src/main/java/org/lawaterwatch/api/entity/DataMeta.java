@@ -10,19 +10,16 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Entity
-@Table(name = "data-meta")
+@Table(name = "data_meta")
 @Data
 @NoArgsConstructor
 public class DataMeta {
 
+    public static final int SINGLETON_ID = 1;
+
     @Id
-    private final Integer id = 1;
+    private Integer id = SINGLETON_ID;
 
-    @Column(name = "time_stamp")
-    private Instant timeStamp;
-
+    private Instant lastRefreshed;
     private Integer version;
-
-
-
 }
