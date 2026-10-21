@@ -37,3 +37,6 @@ build/
 water-api/data
 /data/*.db
 
+
+### Claude Code (local only) ###
+CLAUDE.md

@@ -1,13 +1,16 @@
 package org.lawaterwatch.api.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "census_tract", indexes = @Index(columnList = "pwsid"))
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CensusTract {
 
     //11 character, zero padded tract id , e.g. 06037101122
@@ -40,9 +43,8 @@ public class CensusTract {
     private Double cleanupSitesPctl;
     private Double airPm25Pctl;
 
-
-
-
-
-
+    public CensusTract(String tractId, String pwsid) {
+        this.tractId = tractId;
+        this.pwsid = pwsid;
+    }
 }

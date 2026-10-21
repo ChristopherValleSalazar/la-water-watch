@@ -4,15 +4,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "violation", indexes = @Index(columnList = "pwsid"))
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Violation {
 
     @Id
@@ -34,4 +37,9 @@ public class Violation {
     private LocalDate complPerEndDate;
     private LocalDate rtcDate;
     private String publicNotificationTier;
+
+    public Violation(String violationId, String pwsid) {
+        this.violationId = violationId;
+        this.pwsid = pwsid;
+    }
 }
