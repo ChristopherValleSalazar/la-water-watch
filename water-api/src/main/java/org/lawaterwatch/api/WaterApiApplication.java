@@ -13,7 +13,6 @@ public class WaterApiApplication {
     public static void main(String[] args) throws IOException {
 
         Files.createDirectories(Path.of("data"));
-
         SpringApplication.run(WaterApiApplication.class, args);
     }
 
