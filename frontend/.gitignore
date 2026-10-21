@@ -1,0 +1,11 @@
+# Downloaded packages are restored with pnpm install.
+node_modules/
+
+# Production output is recreated with pnpm build.
+dist/
+
+# Keep machine-specific settings and local environment values out of commits.
+*.local
+.env
+.env.*
+!.env.example
