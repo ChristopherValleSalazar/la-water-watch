@@ -40,3 +40,5 @@ water-api/data
 
 ### Claude Code (local only) ###
 CLAUDE.md
+**/node_modules
+**/.vite/deps

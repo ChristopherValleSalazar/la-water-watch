@@ -46,7 +46,7 @@ public class Violation {
     private LocalDate complPerBeginDate;
     private LocalDate complPerEndDate;
     private LocalDate rtcDate;
-    private String publicNotificationTier;
+    private Integer publicNotificationTier;
 
     public Violation(String violationId, String pwsid) {
         this.violationId = violationId;
