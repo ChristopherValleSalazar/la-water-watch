@@ -4,6 +4,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.util.GeometryFixer;
@@ -16,6 +17,11 @@ public final class GeoJsonGeometry {
     private static final GeometryFactory FACTORY = new GeometryFactory(new PrecisionModel(), 4326);
 
     private GeoJsonGeometry() {}
+
+    //Same factory as parsed shapes, note the order: x = lng, y = lat
+    public static Point point(double lng, double lat) {
+        return FACTORY.createPoint(new Coordinate(lng, lat));
+    }
 
     public static Geometry parse(JsonNode geometry) {
         if (geometry == null || geometry.isNull()) {

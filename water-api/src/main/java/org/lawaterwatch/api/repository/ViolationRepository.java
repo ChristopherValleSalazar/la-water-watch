@@ -11,4 +11,6 @@ public interface ViolationRepository extends JpaRepository<Violation, Long> {
 
     List<Violation> findByPwsid(String pwsid);
 
+    long countByPwsid(String pwsid);
+
 }
