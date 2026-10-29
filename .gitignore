@@ -34,4 +34,11 @@ build/
 
 ### credintials ###
 .env
+water-api/data
+/data/*.db
 
+
+### Claude Code (local only) ###
+CLAUDE.md
+**/node_modules
+**/.vite/deps
