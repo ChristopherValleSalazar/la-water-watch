@@ -1,0 +1,973 @@
+/* Shared colors, font defaults, and a small reset for consistent browser rendering. */
+:root {
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #24352f;
+  background: #f7f8f3;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-optical-sizing: auto;
+  font-size: 14px;
+  font-weight: 400;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #9baf7d;
+  outline-offset: 3px;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+/* Desktop frame: the sidebar stays beside the page content. */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+}
+.sidebar {
+  width: 230px;
+  flex: 0 0 230px;
+  background: #214b3b;
+  color: #f5f6ee;
+  min-height: 100vh;
+  padding: 35px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.brand {
+  text-decoration: none;
+  color: #f5f6ee;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 4px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -1.6px;
+}
+.brand-drop {
+  color: #bed2a3;
+  font-size: 24px;
+  line-height: 1;
+}
+.brand-period {
+  color: #b7ca96;
+}
+.brand-caption {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #cad7ca;
+  margin: 12px 6px 52px;
+}
+/* Sidebar navigation and its small supporting project description. */
+.primary-nav {
+  display: grid;
+  gap: 8px;
+}
+.nav-link {
+  height: 43px;
+  border: 0;
+  background: transparent;
+  color: #dce5dc;
+  border-radius: 5px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 11px;
+  font-size: 12px;
+}
+.nav-link.active {
+  background: #426655;
+  color: #fff;
+}
+.nav-link i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #bedc98;
+  margin-left: auto;
+}
+.icon {
+  width: 16px;
+  text-align: center;
+  color: #c8d9c0;
+  font-size: 18px;
+  line-height: 1;
+}
+.sidebar-story {
+  margin: auto 10px 0;
+  padding: 20px 0 25px;
+  border-bottom: 1px solid #587766;
+}
+.story-mark {
+  font-size: 35px;
+  color: #c0d19a;
+  display: block;
+  margin-bottom: 10px;
+}
+.sidebar-story strong {
+  font-size: 14px;
+  line-height: 1.55;
+}
+.sidebar-story p {
+  font-size: 11px;
+  line-height: 1.75;
+  color: #c2d2c5;
+  margin: 12px 0 18px;
+}
+.story-rule {
+  width: 24px;
+  height: 1px;
+  background: #a5bd9e;
+  display: block;
+  margin-bottom: 20px;
+}
+.sidebar-story small {
+  font-size: 9px;
+  color: #c6d7c5;
+}
+.status-dot {
+  display: inline-block;
+  background: #bbd293;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.about-link {
+  margin: 20px 3px 0;
+  border: 0;
+  background: none;
+  color: #d7e0d7;
+  text-align: left;
+  font-size: 11px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.about-link span:last-child {
+  margin-left: auto;
+}
+.main-panel {
+  min-width: 0;
+  flex: 1;
+}
+/* Header, page width, title, and local ZIP search. */
+.topbar {
+  height: 61px;
+  border-bottom: 1px solid #e0e3da;
+  padding: 0 34px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: #748078;
+  margin: 0;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #7d867d;
+  font-size: 10px;
+}
+.location-pin {
+  font-size: 15px;
+}
+.top-divider {
+  height: 20px;
+  border-left: 1px solid #dce1d7;
+  margin: 0 4px;
+}
+.demo-pill,
+.count-pill {
+  background: #eef1e7;
+  border-radius: 3px;
+  color: #768075;
+  font-size: 9px;
+  padding: 6px 9px;
+}
+.content {
+  max-width: 1190px;
+  margin: auto;
+  padding: 42px 33px 35px;
+}
+.intro > .eyebrow {
+  margin-bottom: 18px;
+}
+.intro h1,
+.secondary-view h1 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 37px;
+  line-height: 1.22;
+  letter-spacing: -1.5px;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3f36;
+}
+.mobile-break {
+  display: none;
+}
+.intro-copy {
+  font-size: 12px;
+  color: #778079;
+  margin: 13px 0 27px;
+  line-height: 1.65;
+}
+.search-box {
+  height: 52px;
+  width: min(660px, 100%);
+  border: 1px solid #d9ded5;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 6px 6px 6px 15px;
+  position: relative;
+  box-shadow: 0 2px 5px #213b2c08;
+}
+.search-icon {
+  font-size: 24px;
+  color: #89948c;
+  line-height: 1;
+  margin-right: 10px;
+}
+.search-box input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: none;
+  color: #34453c;
+  font-size: 11px;
+}
+.search-box:focus-within {
+  outline: 2px solid #9baf7d;
+  outline-offset: 2px;
+}
+.search-box input::placeholder {
+  color: #a5aaa5;
+}
+.location-button {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  margin: 0 10px;
+  border: 0;
+  border-radius: 50%;
+  background: #f0f3ea;
+  color: #6d8369;
+  font-size: 21px;
+}
+.search-submit {
+  height: 39px;
+  border: 0;
+  border-radius: 5px;
+  background: #244b3c;
+  color: #fff;
+  padding: 0 16px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.search-submit span {
+  font-size: 17px;
+  margin-left: 18px;
+}
+/* Search suggestions float under the input while the user is typing. */
+.suggestions {
+  position: absolute;
+  z-index: 2;
+  left: 15px;
+  right: 140px;
+  top: 55px;
+  background: #fff;
+  border: 1px solid #e0e3da;
+  border-radius: 6px;
+  box-shadow: 0 9px 22px #1e39220e;
+  overflow: hidden;
+}
+.suggestions button {
+  width: 100%;
+  border: 0;
+  background: white;
+  padding: 10px 13px;
+  display: flex;
+  justify-content: space-between;
+  color: #35453b;
+  font-size: 11px;
+  text-align: left;
+}
+.suggestions button:hover {
+  background: #f2f5ee;
+}
+.suggestions small {
+  color: #929b91;
+}
+.search-hints {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  color: #8c948a;
+  margin-top: 10px;
+  font-size: 9px;
+}
+.search-hints button {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: #69766a;
+  font-size: 9px;
+}
+.notice {
+  font-size: 10px;
+  color: #59745a;
+  margin: 8px 0 0;
+}
+/* City map, interactive SVG markers, and the selected-neighborhood panel. */
+.city-section {
+  margin-top: 42px;
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  gap: 18px;
+}
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-head h2 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.35px;
+  margin: 0;
+  color: #34443b;
+}
+.count-pill {
+  font-size: 8px;
+  padding: 5px 8px;
+}
+.section-head p {
+  font-size: 10px;
+  color: #899187;
+  margin: 7px 0 0;
+}
+.layer-tabs {
+  padding: 3px;
+  background: #eef0e8;
+  border-radius: 5px;
+  display: flex;
+  gap: 2px;
+}
+.layer-tabs button {
+  border: 0;
+  background: none;
+  color: #778077;
+  font-size: 9px;
+  padding: 9px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.layer-tabs button.selected {
+  background: white;
+  color: #45554a;
+  box-shadow: 0 1px 3px #1e39220d;
+}
+.map-and-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  border: 1px solid #d9ded3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e9eee4;
+  min-height: 390px;
+}
+.map-frame {
+  position: relative;
+  min-width: 0;
+  min-height: 390px;
+  overflow: hidden;
+}
+.map-label {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  z-index: 1;
+  background: #fff;
+  border-radius: 4px;
+  padding: 8px 11px;
+  font-size: 8px;
+  color: #6a786d;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.map-label > span:nth-child(2) {
+  color: #b8beb5;
+}
+.map-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a9c58b;
+}
+.map-controls {
+  position: absolute;
+  right: 13px;
+  top: 14px;
+  z-index: 1;
+  display: grid;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px #1c322d1b;
+  overflow: hidden;
+}
+.map-controls button {
+  width: 31px;
+  height: 30px;
+  border: 0;
+  background: white;
+  color: #55635a;
+  font-size: 18px;
+}
+.map-controls button + button {
+  border-top: 1px solid #e7e9e3;
+}
+.map-svg {
+  width: 100%;
+  height: 100%;
+  min-height: 390px;
+  display: block;
+}
+.map-landmark {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 7px;
+  letter-spacing: 1px;
+  fill: #788373;
+  opacity: 0.78;
+}
+.map-marker {
+  cursor: pointer;
+  outline: none;
+}
+.map-marker:focus circle {
+  stroke: #d0914c;
+  stroke-width: 3;
+}
+.marker-score {
+  font:
+    600 8px "Segoe UI",
+    sans-serif;
+  fill: #556252;
+}
+.active-marker {
+  fill: white;
+}
+.marker-name {
+  font:
+    500 8px "Segoe UI",
+    sans-serif;
+  fill: #455143;
+}
+.map-legend {
+  position: absolute;
+  left: 14px;
+  bottom: 13px;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  color: #748075;
+  font-size: 8px;
+}
+.legend-chip {
+  background: #fff;
+  padding: 7px 9px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #abc188;
+}
+.area-card {
+  background: #fff;
+  padding: 22px 18px 17px;
+  min-width: 0;
+  border-left: 1px solid #e1e4dc;
+}
+.card-kicker {
+  color: #788178;
+  font-size: 8px;
+  letter-spacing: 1px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.card-kicker span {
+  font-size: 13px;
+}
+.area-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 17px;
+  gap: 8px;
+}
+.area-heading h3 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 21px;
+  letter-spacing: -0.6px;
+  color: #33453a;
+  margin: 0;
+  font-weight: 700;
+}
+.zip-badge {
+  border: 1px solid #e2e5de;
+  border-radius: 3px;
+  padding: 5px 7px;
+  font-size: 9px;
+  color: #737d73;
+}
+.system-line {
+  font-size: 9px;
+  color: #858d84;
+  margin: 6px 0 17px;
+}
+.score-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #768077;
+}
+.score-line strong {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-weight: 500;
+  font-size: 39px;
+  line-height: 1;
+  color: #31483a;
+  letter-spacing: -1.8px;
+}
+.score-line > span:nth-child(2) {
+  font-size: 10px;
+  margin-top: 11px;
+}
+.score-tag {
+  margin-left: auto;
+  background: #f0f3e8;
+  border-radius: 3px;
+  color: #71805e;
+  padding: 6px 7px;
+  font-size: 8px;
+}
+.score-bar {
+  height: 5px;
+  background: #eff0e9;
+  border-radius: 8px;
+  margin: 11px 0 7px;
+  overflow: hidden;
+}
+.score-bar i {
+  height: 100%;
+  background: #a8ba79;
+  display: block;
+  border-radius: 8px;
+  transition: width 0.2s;
+}
+.disclaimer {
+  font-size: 8px;
+  color: #9a9f97;
+}
+.compare-line {
+  border-bottom: 1px solid #edf0e9;
+  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #899187;
+  gap: 6px;
+}
+.compare-line b {
+  font-weight: 500;
+  color: #526151;
+  white-space: nowrap;
+}
+.concern-block {
+  padding-top: 14px;
+}
+.concern-title {
+  font-size: 8px;
+  letter-spacing: 0.9px;
+  color: #828980;
+  display: flex;
+  justify-content: space-between;
+}
+.concern-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  color: #58655b;
+  margin: 13px 0 7px;
+}
+.concern-row > i {
+  width: 6px;
+  height: 6px;
+  background: #c5aa64;
+  border-radius: 50%;
+  flex: 0 0 6px;
+}
+.review-badge {
+  margin-left: auto;
+  background: #f4f0e3;
+  color: #8e7c51;
+  padding: 4px 6px;
+  border-radius: 2px;
+  font-size: 8px;
+}
+.concern-block > p {
+  font-size: 8px;
+  line-height: 1.6;
+  color: #9a9f97;
+  margin: 0;
+}
+.overview-button {
+  width: 100%;
+  margin-top: 13px;
+  background: #f5f7f1;
+  color: #4a5d4f;
+  border: 1px solid #e7ebe2;
+  border-radius: 4px;
+  padding: 9px;
+  text-align: left;
+  font-size: 9px;
+}
+.overview-button span {
+  float: right;
+}
+.overview-detail {
+  padding: 10px;
+  background: #f7f8f4;
+  margin-top: 7px;
+  border-radius: 4px;
+}
+.overview-detail strong {
+  font-size: 9px;
+}
+.overview-detail p {
+  font-size: 8px;
+  line-height: 1.6;
+  color: #737d73;
+  margin: 5px 0 0;
+}
+.demo-disclaimer {
+  font-size: 9px;
+  color: #8d948b;
+  margin-top: 15px;
+}
+.demo-disclaimer span {
+  margin-right: 5px;
+}
+/* The simpler preview cards shown by the two secondary navigation items. */
+.secondary-view {
+  padding-top: 16px;
+  min-height: 600px;
+}
+.secondary-view > .eyebrow {
+  margin-bottom: 18px;
+}
+.secondary-view h1 {
+  font-size: 36px;
+}
+.secondary-view .intro-copy {
+  max-width: 640px;
+  margin-bottom: 35px;
+}
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.info-card {
+  background: #fff;
+  border: 1px solid #e2e5dd;
+  border-radius: 7px;
+  padding: 22px;
+  min-height: 182px;
+}
+.info-icon {
+  font-size: 24px;
+  color: #82996f;
+}
+.info-card h2 {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+  margin: 13px 0 8px;
+}
+.info-card p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #778079;
+}
+.coming-pill {
+  font-size: 8px;
+  background: #eff2e9;
+  color: #73836e;
+  padding: 5px 7px;
+  border-radius: 3px;
+}
+.return-button {
+  margin-top: 24px;
+  border: 0;
+  padding: 10px 0;
+  background: none;
+  color: #43624d;
+  font-size: 11px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* At tablet widths, keep the side navigation while allowing the map to scroll. */
+@media (max-width: 940px) {
+  .sidebar {
+    width: 190px;
+    flex-basis: 190px;
+  }
+  .content {
+    padding: 34px 24px;
+  }
+  .map-and-card {
+    grid-template-columns: minmax(0, 1fr) 210px;
+  }
+  .area-card {
+    padding: 18px 14px;
+  }
+  .layer-tabs button {
+    padding: 8px 7px;
+  }
+  .map-svg {
+    min-width: 460px;
+  }
+  .map-frame {
+    overflow: auto;
+  }
+  .context-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* At phone widths, stack navigation, map, and selected-neighborhood details. */
+@media (max-width: 680px) {
+  .app-shell {
+    display: block;
+  }
+  .sidebar {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    width: auto;
+    padding: 13px 16px 10px;
+    display: block;
+  }
+  .brand {
+    font-size: 22px;
+  }
+  .brand-drop {
+    font-size: 20px;
+  }
+  .brand-caption,
+  .sidebar-story,
+  .about-link {
+    display: none;
+  }
+  .primary-nav {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+    overflow-x: auto;
+  }
+  .nav-link {
+    height: 35px;
+    padding: 0 9px;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 10px;
+  }
+  .nav-link .icon {
+    font-size: 14px;
+    width: 13px;
+  }
+  .nav-link i {
+    display: none;
+  }
+  .topbar {
+    height: 48px;
+    padding: 0 17px;
+  }
+  .topbar-right {
+    font-size: 9px;
+  }
+  .content {
+    padding: 29px 16px 25px;
+  }
+  .intro h1 {
+    font-size: 30px;
+    letter-spacing: -1.1px;
+  }
+  .mobile-break {
+    display: block;
+  }
+  .intro-copy {
+    font-size: 11px;
+    margin: 11px 0 20px;
+  }
+  .search-box {
+    padding-left: 11px;
+    height: 49px;
+  }
+  .search-icon {
+    font-size: 20px;
+    margin-right: 6px;
+  }
+  .search-box input {
+    font-size: 10px;
+  }
+  .location-button {
+    margin: 0 5px;
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 18px;
+  }
+  .search-submit {
+    height: 36px;
+    padding: 0 10px;
+    font-size: 9px;
+  }
+  .search-submit span {
+    margin-left: 6px;
+  }
+  .search-hints {
+    font-size: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .search-hints button {
+    font-size: 8px;
+  }
+  .city-section {
+    margin-top: 32px;
+  }
+  .section-head {
+    display: block;
+  }
+  .title-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .section-head h2 {
+    font-size: 16px;
+  }
+  .layer-tabs {
+    width: max-content;
+    margin-top: 13px;
+  }
+  .map-and-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .map-frame {
+    min-height: 300px;
+    max-height: 330px;
+  }
+  .map-svg {
+    min-height: 300px;
+  }
+  .map-legend {
+    position: sticky;
+    left: 12px;
+    bottom: 10px;
+    width: max-content;
+  }
+  .area-card {
+    border: 0;
+    border-top: 1px solid #e1e4dc;
+    padding: 19px 17px;
+  }
+  .area-heading h3 {
+    font-size: 20px;
+  }
+  .score-line strong {
+    font-size: 35px;
+  }
+  .card-kicker {
+    font-size: 8px;
+  }
+  .demo-disclaimer {
+    line-height: 1.6;
+  }
+  .context-grid {
+    grid-template-columns: 1fr;
+  }
+  .secondary-view {
+    padding-top: 4px;
+  }
+  .secondary-view h1 {
+    font-size: 30px;
+  }
+  .secondary-view .intro-copy {
+    font-size: 11px;
+  }
+  .info-card {
+    min-height: 0;
+    padding: 18px;
+  }
+}
+/* Respect a device setting that asks interfaces to reduce animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

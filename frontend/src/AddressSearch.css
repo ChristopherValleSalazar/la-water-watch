@@ -1,0 +1,105 @@
+/* Everything is scoped under .address-search so it can't clash with App's styles. */
+
+.address-search {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 15px;
+}
+
+.address-search input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.address-search input[type="text"]:focus {
+  border-color: #4a7dff;
+  box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.15);
+}
+
+/* Dropdown anchored under the input. React only renders it when open, so no .open class needed. */
+.address-search .dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  z-index: 2000; /* above the Leaflet map */
+  max-height: 280px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  animation: dropIn 0.16s ease-out;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.address-search .dropdown li {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.address-search .dropdown li + li {
+  border-top: 1px solid #f0f0f0;
+}
+
+.address-search .dropdown li.result:hover {
+  background: #f4f7ff;
+}
+
+.address-search .line1 {
+  font-weight: 600;
+  color: #222;
+}
+
+.address-search .line2 {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.address-search .dropdown li.message,
+.address-search .dropdown li.skeleton {
+  color: #888;
+  cursor: default;
+}
+
+/* Skeleton loading rows */
+.address-search .skel-line {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eee 25%, #f7f7f7 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.1s linear infinite;
+}
+
+.address-search .skel-line.short {
+  width: 45% !important;
+  height: 10px;
+  margin-top: 7px;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.address-search .address-status {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
