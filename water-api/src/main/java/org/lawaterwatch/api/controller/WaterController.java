@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 //Endpoints the frontend team builds against
 @RestController
 @RequestMapping("/api")
+@CrossOrigin("http://127.0.0.1:3000/")
 public class WaterController {
 
     private final WaterSystemService waterSystemService;
