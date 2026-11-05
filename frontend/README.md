@@ -27,6 +27,7 @@ The map-layer buttons currently demonstrate selection and update the legend text
 | **Vite**       | Starts the local development server with fast refresh and makes the static files for a production build.                                                                                 |
 | **Node.js**    | Runs development tools on your computer. Visitors do not need Node.js to view a deployed static site.                                                                                    |
 | **pnpm**       | Downloads and records the project's JavaScript packages. It is similar to npm; this project includes `pnpm-lock.yaml` to keep installs consistent.                                       |
+| **Leaflet**    | Draws the interactive map. `react-leaflet` connects it to React; `@types/leaflet` and `@types/geojson` provide its TypeScript types.                                                      |
 | **SVG**        | Draws the illustrative map as scalable shapes and markers. A marker is an interactive SVG group, so it can update the selected neighborhood.                                             |
 
 ## Requirements
@@ -76,6 +77,17 @@ pnpm install --frozen-lockfile
 This downloads React, Vite, TypeScript, and the other packages into `node_modules`, using the exact versions in `pnpm-lock.yaml`. You do not need to install those packages individually. The mockup runs independently of the Java backend and requires no API keys or database.
 
 If your terminal is already inside `frontend`, skip `cd frontend`.
+
+#### Install Leaflet and its types
+
+The map and address search use [Leaflet](https://leafletjs.com/) through `react-leaflet`. Download Leaflet, the React bindings, and their TypeScript types from the `frontend` folder:
+
+```sh
+pnpm add leaflet react-leaflet
+pnpm add -D @types/leaflet @types/geojson
+```
+
+`leaflet` draws the interactive map, `react-leaflet` lets React components control it, and `@types/leaflet` and `@types/geojson` give TypeScript the type definitions for Leaflet and the GeoJSON boundaries. Without the types, `pnpm build` fails its TypeScript checks.
 
 ### 3. Start the development server
 
