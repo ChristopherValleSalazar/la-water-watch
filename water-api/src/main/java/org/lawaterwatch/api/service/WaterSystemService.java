@@ -1,10 +1,15 @@
 package org.lawaterwatch.api.service;
 
+import org.lawaterwatch.api.dto.Filter;
 import org.lawaterwatch.api.dto.MetaResponse;
+import org.lawaterwatch.api.dto.SystemInfoPanel;
 import org.lawaterwatch.api.dto.SystemMapResponse;
 import org.lawaterwatch.api.entity.DataMeta;
+import org.lawaterwatch.api.entity.Violation;
 import org.lawaterwatch.api.entity.WaterSystem;
+import org.lawaterwatch.api.exception.PwsidNotFoundException;
 import org.lawaterwatch.api.repository.DataMetaRepository;
+import org.lawaterwatch.api.repository.ViolationRepository;
 import org.lawaterwatch.api.repository.WaterSystemRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +25,13 @@ public class WaterSystemService {
 
     private final WaterSystemRepository waterSystemRepository;
     private final DataMetaRepository dataMetaRepository;
+    private final ViolationRepository violationRepository;
 
-    public WaterSystemService(WaterSystemRepository waterSystemRepository, DataMetaRepository dataMetaRepository) {
+    public WaterSystemService(WaterSystemRepository waterSystemRepository, DataMetaRepository dataMetaRepository,
+                              ViolationRepository violationRepository) {
         this.waterSystemRepository = waterSystemRepository;
         this.dataMetaRepository = dataMetaRepository;
+        this.violationRepository = violationRepository;
     }
 
     public MetaResponse meta() {
@@ -51,5 +59,67 @@ public class WaterSystemService {
                 system.getLabelLat(),
                 system.getLabelLng(),
                 system.getPopulation()));
+    }
+
+    public SystemInfoPanel infoPanel(String pwsid) {
+        if(!WaterSystemList.contains(pwsid)) {
+            throw new PwsidNotFoundException(pwsid + " does not exist");
+        }
+
+        WaterSystem system = waterSystemRepository.findById(pwsid)
+                .orElseThrow(() -> new PwsidNotFoundException(pwsid));
+
+        List<SystemInfoPanel.ViolationItem> violations =
+                violationRepository.findByPwsid(pwsid).stream()
+                        .sorted(Comparator.comparing(Violation::getComplPerBeginDate,
+                                Comparator.nullsLast(Comparator.reverseOrder())))
+                        .map(WaterSystemService::toViolationItem)
+                        .toList();
+
+        return new SystemInfoPanel(
+            system.getPwsid(),
+            system.getName(),
+            system.getCounty(),
+            system.getPopulation(),
+            system.getServiceConnections(),
+            system.getPhone(),
+            system.getRegulatingAgency(),
+            system.getLabelLat(), //Y-axis
+            system.getLabelLng(), //X-axis
+            system.getWaterScore(),
+            system.getBurdenScore(),
+            system.getTractCount(),
+            system.getTractPopulation(),
+            system.getAvgAsthmaPctl(),
+            system.getAvgPovertyPctl(),
+            system.getAvgChildLeadPctl(),
+            system.getAvgToxReleasesPctl(),
+            system.getAvgGwThreatsPctl(),
+            system.getAvgCleanupSitesPctl(),
+            system.getAvgAirPm25Pctl(),
+            violations
+        );
+    }
+
+    private static SystemInfoPanel.ViolationItem toViolationItem(Violation violation) {
+        return new SystemInfoPanel.ViolationItem(
+                violation.getViolationId(),
+                violation.getViolationCategoryCode(),
+                violation.getIsHealthBasedInd(),
+                violation.getContaminantCode(),
+                "Unkown",
+                violation.getComplianceStatusCode(),
+                violation.getComplPerBeginDate(),
+                violation.getComplPerEndDate(),
+                violation.getRtcDate(),
+                violation.getPublicNotificationTier()
+        );
+    }
+
+
+
+    public Void leaderboard(Filter filter) {
+
+        return null;
     }
 }

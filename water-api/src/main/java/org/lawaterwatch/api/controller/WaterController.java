@@ -1,11 +1,11 @@
 package org.lawaterwatch.api.controller;
 
+import org.lawaterwatch.api.dto.Filter;
 import org.lawaterwatch.api.dto.MetaResponse;
 import org.lawaterwatch.api.dto.SystemMapResponse;
+import org.lawaterwatch.api.dto.SystemInfoPanel;
 import org.lawaterwatch.api.service.WaterSystemService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 //Endpoints the frontend team builds against
 @RestController
@@ -27,4 +27,18 @@ public class WaterController {
     public SystemMapResponse map() {
         return waterSystemService.map();
     }
+
+    @GetMapping("/systems/info-panel/{pwsid}")
+    public SystemInfoPanel infoPanel(@PathVariable String pwsid) {
+       return waterSystemService.infoPanel(pwsid);
+    }
+
+    @GetMapping("/systems/leaderboard/")
+    public Void leaderboard(@RequestParam(required = false) Filter filter) {
+        return waterSystemService.leaderboard(filter);
+    }
+
+
+
+
 }
