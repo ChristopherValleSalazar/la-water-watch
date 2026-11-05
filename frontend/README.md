@@ -80,7 +80,7 @@ If your terminal is already inside `frontend`, skip `cd frontend`.
 
 #### Install Leaflet and its types
 
-The map and address search use [Leaflet](https://leafletjs.com/) through `react-leaflet`. Download Leaflet, the React bindings, and their TypeScript types from the `frontend` folder:
+The map and address search use [Leaflet](https://leafletjs.com/) through `react-leaflet`. These packages are listed in `package.json`, so `pnpm install --frozen-lockfile` downloads them. If they are missing from `node_modules` (for example, `pnpm dev` reports that it cannot resolve `leaflet`), download Leaflet, the React bindings, and their TypeScript types from the `frontend` folder:
 
 ```sh
 pnpm add leaflet react-leaflet
