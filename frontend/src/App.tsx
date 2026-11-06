@@ -84,20 +84,30 @@ const demoAverage = Math.round(
 );
 
 // The [] means this is a list. Each item must have an allowed page id, a label, and an icon glyph.
-const navItems: { id: Page; label: string; glyph: string }[] = [
-  { id: "explore", label: "Explore the water", glyph: "⌖" },
-  { id: "context", label: "Environmental context", glyph: "◷" },
-  { id: "resources", label: "Resources & action", glyph: "▤" },
+const navItems: { id: Page; label: string; icon: string }[] = [
+  { id: "explore", label: "Explore the water", icon: "map" },
+  { id: "context", label: "Environmental context", icon : "history" },
+  { id: "resources", label: "Resources & action", icon: "resource" },
 ];
 
 // This small React component avoids repeating the same decorative-icon markup.
 // The { children: string } part is a TypeScript type for the text passed between its tags.
-function Icon({ children }: { children: string }) {
-  return (
-    <span className="icon" aria-hidden="true">
-      {children}
-    </span>
-  );
+function Icon({ name, size = 25 }: { name: string; size?: number }) {
+  const paths: Record<string, React.ReactNode> = {
+    drop: <path d="M12 3C9 8 5 11 5 15a7 7 0 0 0 14 0c0-4-4-7-7-12Z" />,
+    map: <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/></>,
+    search: <><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,
+    arrow: <path d="M5 12h14m-6-6 6 6-6 6"/>,
+    pin: <><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 14 0Z"/><circle cx="12" cy="10" r="2"/></>,
+    history: <><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></>,
+    resource: <><path d="M4 4h7a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4Zm16 0h-3a3 3 0 0 0-3 3M20 4v15h-2"/></>,
+    info: <><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></>,
+    globe: <><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></>,
+    locate: <><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></>,
+    civic: <><path d="M3 21h18M5 18h14M6 9v9M10 9v9M14 9v9M18 9v9M3 6l9-4 9 4Z"/></>,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></>,
+  }
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name] || paths.info}</svg>
 }
 
 function App() {
@@ -105,7 +115,7 @@ function App() {
   // React recalculates this component and updates the screen when a setter is called.
   const [activeNav, setActiveNav] = useState<Page>("explore");
   // These values are temporary page memory: layer, selection, search, notice, and controls.
-  const [activeLayer, setActiveLayer] = useState("Water quality");
+  const [activeLayer, setActiveLayer] = useState("Water quality?????");
   const [selectedName, setSelectedName] = useState(defaultArea.name);
   const [query, setQuery] = useState("");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -173,9 +183,9 @@ function App() {
           className="brand"
           href="#top"
           onClick={() => setActiveNav("explore")}
-          aria-label="wellwater home"
+          aria-label="Wellwater Home"
         >
-          <span className="brand-drop">◉</span>
+          <span className="brand-drop"><Icon name="drop" size={29}/></span>
           <span>
             wellwater<span className="brand-period">.</span>
           </span>
@@ -190,7 +200,7 @@ function App() {
               onClick={() => setActiveNav(item.id)}
               aria-current={activeNav === item.id ? "page" : undefined}
             >
-              <Icon>{item.glyph}</Icon>
+              <Icon name={item.icon}/>
               <span>{item.label}</span>
               {activeNav === item.id && <i aria-hidden="true" />}
             </button>
@@ -211,16 +221,17 @@ function App() {
           </small>
         </div>
         <button className="about-link" onClick={() => setActiveNav("context")}>
-          <Icon>ⓘ</Icon> About the data <span>↗</span>
+          <Icon name="notice"/> About the data <span>↗</span>
         </button>
       </aside>
 
       <main id="top" className="main-panel">
+
         <header className="topbar">
           <span className="eyebrow">THE WATER WE SHARE</span>
           <div className="topbar-right">
-            <span className="location-pin">⌖</span> Los Angeles, CA{" "}
-            <span className="top-divider" />
+            <span className="location-pin"><Icon name="pin" size={17}/></span> Los Angeles, CA{" "}
+            <span className="top-divider"/>
             <span className="demo-pill">Demo edition</span>
           </div>
         </header>
@@ -249,7 +260,7 @@ function App() {
                   }}
                 >
                   <span className="search-icon" aria-hidden="true">
-                    ⌕
+                    <Icon name="search" size={20}/>
                   </span>
                   <label className="sr-only" htmlFor="area-search">
                     Enter your address or ZIP code
@@ -268,7 +279,7 @@ function App() {
                       setQuery(event.target.value);
                       setSuggestionsOpen(true);
                     }}
-                    placeholder="Enter your address or ZIP code"
+                    placeholder="Enter your address"
                     autoComplete="off"
                   />
                   <button
@@ -282,10 +293,10 @@ function App() {
                     }
                     title="Location demo"
                   >
-                    <span>⌖</span>
+                    <span><Icon name="locate" size={18}/></span>
                   </button>
                   <button type="submit" className="search-submit">
-                    Explore my water <span>→</span>
+                    Explore my water <span><Icon name="arrow" size={16}/></span>
                   </button>
                   {suggestionsOpen && suggestions.length > 0 && (
                     <div
@@ -315,7 +326,7 @@ function App() {
                       )
                     }
                   >
-                    ⌖ &nbsp;Use my current location
+                    <Icon name="locate" size={10}/> &nbsp;Use my current location
                   </button>
                   <span>·</span>
                   <span>Your location is never stored.</span>
@@ -563,7 +574,7 @@ function App() {
                     aria-label="Selected neighborhood details"
                   >
                     <div className="card-kicker">
-                      <span>⌖</span> YOUR SELECTED NEIGHBORHOOD
+                      <span><Icon name="pin" size={14}/></span> YOUR SELECTED NEIGHBORHOOD
                     </div>
                     <div className="area-heading">
                       <h3>{selected.name}</h3>

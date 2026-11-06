@@ -1,14 +1,17 @@
 /* Shared colors, font defaults, and a small reset for consistent browser rendering. */
 :root {
-  font-family: "Segoe UI", Arial, sans-serif;
-  color: #24352f;
-  background: #f7f8f3;
+  font-family: 'DM Sans', sans-serif;
+  color: #273d34;
+  background: #f7f8f4;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-optical-sizing: auto;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
+  --primary:#244f3f;
+  --border:#e0e5dc
+  --secondary:#e9eee4;
 }
 * {
   box-sizing: border-box;
@@ -18,9 +21,11 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
-button,
-input {
-  font: inherit;
+button,input,a{
+  -webkit-tap-highlight-color:transparent
+}
+button,a{
+  transition:background .18s,color .18s,transform .18s
 }
 button {
   cursor: pointer;
@@ -42,10 +47,10 @@ button:disabled {
 .sidebar {
   width: 230px;
   flex: 0 0 230px;
-  background: #214b3b;
+  background: #1c4435;
   color: #f5f6ee;
   min-height: 100vh;
-  padding: 35px 18px 24px;
+  padding: 35px 20px 24px;
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -65,7 +70,7 @@ button:disabled {
   letter-spacing: -1.6px;
 }
 .brand-drop {
-  color: #bed2a3;
+  color: #b5c79d;
   font-size: 24px;
   line-height: 1;
 }
@@ -110,7 +115,7 @@ button:disabled {
 .icon {
   width: 16px;
   text-align: center;
-  color: #c8d9c0;
+  color: #7d9d7e;
   font-size: 18px;
   line-height: 1;
 }
@@ -126,12 +131,12 @@ button:disabled {
   margin-bottom: 10px;
 }
 .sidebar-story strong {
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.55;
 }
 .sidebar-story p {
-  font-size: 11px;
-  line-height: 1.75;
+  font-size: 12px;
+  line-height: 1.55;
   color: #c2d2c5;
   margin: 12px 0 18px;
 }
@@ -176,43 +181,45 @@ button:disabled {
 /* Header, page width, title, and local ZIP search. */
 .topbar {
   height: 61px;
-  border-bottom: 1px solid #e0e3da;
+  border-bottom: 1px solid #bdbdbd64;
   padding: 0 34px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-weight: 520;
 }
 .eyebrow {
   font-size: 9px;
-  letter-spacing: 1.6px;
-  color: #748078;
+  letter-spacing: 1.3px;
+  color: #00000093;
   margin: 0;
+  font-weight: 800;
 }
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   color: #7d867d;
-  font-size: 10px;
+  font-size: 11px;
 }
 .location-pin {
-  font-size: 15px;
+  font-size: 23.5px;
 }
 .top-divider {
-  height: 20px;
+  height: 24px;
   border-left: 1px solid #dce1d7;
   margin: 0 4px;
 }
 .demo-pill,
 .count-pill {
-  background: #eef1e7;
-  border-radius: 3px;
+  background: #75a31222;
+  border-radius: 4px;
   color: #768075;
-  font-size: 9px;
+  font-size: 13px;
   padding: 6px 9px;
 }
 .content {
-  max-width: 1190px;
+  max-width: 2190px;
   margin: auto;
   padding: 42px 33px 35px;
 }
@@ -252,7 +259,7 @@ button:disabled {
 }
 .search-icon {
   font-size: 24px;
-  color: #89948c;
+  color: #42ab65;
   line-height: 1;
   margin-right: 10px;
 }
@@ -262,10 +269,10 @@ button:disabled {
   border: 0;
   outline: none;
   color: #34453c;
-  font-size: 11px;
+  font-size: 14px;
 }
 .search-box:focus-within {
-  outline: 2px solid #9baf7d;
+  outline: 3px solid #799a49;
   outline-offset: 2px;
 }
 .search-box input::placeholder {
@@ -280,12 +287,12 @@ button:disabled {
   border-radius: 50%;
   background: #f0f3ea;
   color: #6d8369;
-  font-size: 21px;
+  font-size: 2px;
 }
 .search-submit {
   height: 39px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 7px;
   background: #244b3c;
   color: #fff;
   padding: 0 16px;
@@ -348,7 +355,7 @@ button:disabled {
 }
 /* City map, interactive SVG markers, and the selected-neighborhood panel. */
 .city-section {
-  margin-top: 42px;
+  margin-top: 28px;
 }
 .section-head {
   display: flex;
@@ -363,16 +370,19 @@ button:disabled {
   gap: 12px;
 }
 .section-head h2 {
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 17px;
-  font-weight: 700;
+  font-family: sans-serif;
+  font-size: 20px;
+  font-weight: 550;
+  font-style: normal;
+  font-variant: normal;
+  font-stretch: normal;
   letter-spacing: -0.35px;
   margin: 0;
   color: #34443b;
 }
 .count-pill {
-  font-size: 8px;
-  padding: 5px 8px;
+  font-size: 9px;
+  padding: 6px 7px;
 }
 .section-head p {
   font-size: 10px;
@@ -522,20 +532,20 @@ button:disabled {
 }
 .area-card {
   background: #fff;
-  padding: 22px 18px 17px;
+  padding: 20px 18px 17px;
   min-width: 0;
   border-left: 1px solid #e1e4dc;
 }
 .card-kicker {
   color: #788178;
-  font-size: 8px;
+  font-size: 7px;
   letter-spacing: 1px;
   display: flex;
   gap: 6px;
   align-items: center;
 }
 .card-kicker span {
-  font-size: 13px;
+  font-size: 20px;
 }
 .area-heading {
   display: flex;
@@ -767,7 +777,7 @@ button:disabled {
   border: 0;
 }
 /* At tablet widths, keep the side navigation while allowing the map to scroll. */
-@media (max-width: 940px) {
+@media (max-width: 250px) {
   .sidebar {
     width: 190px;
     flex-basis: 190px;
