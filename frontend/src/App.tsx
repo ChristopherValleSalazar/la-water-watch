@@ -638,29 +638,34 @@ function App() {
               <h1>Environmental context</h1>
               <p className="intro-copy">
                 Water stories are shaped by the places and histories around us.
-                This section is a preview of how local context could appear
-                alongside water-system information.
+                Explore the history, nearby sites, and community data behind
+                your neighborhood's water.
               </p>
               <div className="context-grid">
                 {[
                   {
                     title: "Industrial history",
-                    text: "Explore how land use and historical industry may shape questions residents ask about nearby water.",
+                    text: "See how 1930s redlining maps graded LA neighborhoods, and how those decisions shaped where industry and pollution ended up.",
+                    href: "https://dsl.richmond.edu/panorama/redlining/"
                   },
                   {
                     title: "Environmental sites",
-                    text: "A future version could connect verified public site records with neighborhood context.",
+                    text: "Find Superfund and other cleanup sites near you, including contaminated groundwater that some water systems draw from.",
+                    href: "https://www.epa.gov/superfund/search-superfund-sites-where-you-live"
                   },
                   {
                     title: "Community perspective",
-                    text: "Pair public records with local organizations and community knowledge.",
+                    text: "See how your neighborhood's pollution burden compares across California with CalEnviroScreen.",
+                    href: "https://oehha.ca.gov/calenviroscreen/about-calenviroscreen"
                   },
                 ].map((item) => (
                   <article className="info-card" key={item.title}>
                     <span className="info-icon">⌁</span>
                     <h2>{item.title}</h2>
                     <p>{item.text}</p>
-                    <span className="coming-pill">Concept preview</span>
+                    <a className="coming-pill" href={item.href} target="_blank" rel="noreferrer">
+                     Learn more ↗
+                    </a>
                   </article>
                 ))}
               </div>
@@ -676,33 +681,39 @@ function App() {
               <p className="eyebrow">NEXT STEPS FOR YOUR COMMUNITY</p>
               <h1>Resources & action</h1>
               <p className="intro-copy">
-                A starting point for questions, testing, and community action.
-                Resource links are placeholders in this visual mockup.
+                   A starting point for questions, testing, and community action.
+                   Find help understanding your water and connecting with local advocates.
               </p>
               <div className="context-grid">
                 {[
                   {
                     title: "Request water testing",
                     text: "Learn which local agency can answer questions about testing and sampling.",
+                    href: "https://www.waterboards.ca.gov/drinking_water/certlic/labs/"
                   },
                   {
                     title: "Understand your report",
                     text: "Find plain-language help for reading a water system quality report.",
+                    href: "https://www.epa.gov/ccr/understanding-your-annual-water-quality-report"
                   },
                   {
                     title: "Connect with local groups",
                     text: "Discover environmental justice organizations and neighborhood advocates.",
+                    href: "https://ceja.org/"
                   },
                   {
                     title: "Ask a question",
                     text: "Prepare useful questions for your water provider or local representative.",
+                    href: "https://nationalwaterservice.com/7-questions-to-ask-your-local-water-company/"
                   },
                 ].map((item) => (
                   <article className="info-card" key={item.title}>
                     <span className="info-icon">↗</span>
                     <h2>{item.title}</h2>
                     <p>{item.text}</p>
-                    <span className="coming-pill">Resource preview</span>
+                       <a className="coming-pill" href={item.href} target="_blank" rel="noreferrer">
+                         Open resource ↗
+                    </a>
                   </article>
                 ))}
               </div>
