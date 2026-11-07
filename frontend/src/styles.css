@@ -1,13 +1,13 @@
 /* Shared colors, font defaults, and a small reset for consistent browser rendering. */
 :root {
-  font-family: "Segoe UI", Arial, sans-serif;
-  color: #24352f;
+  font-family: 'DM Sans', sans-serif;
+  color: #273d34;
   background: #f7f8f3;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-optical-sizing: auto;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
 }
 * {
@@ -110,7 +110,7 @@ button:disabled {
 .icon {
   width: 16px;
   text-align: center;
-  color: #c8d9c0;
+  color: #7d9d7e;
   font-size: 18px;
   line-height: 1;
 }
@@ -176,48 +176,50 @@ button:disabled {
 /* Header, page width, title, and local ZIP search. */
 .topbar {
   height: 61px;
-  border-bottom: 1px solid #e0e3da;
+  border-bottom: 1px solid #bdbdbd64;
   padding: 0 34px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-weight: 520;
 }
 .eyebrow {
   font-size: 9px;
-  letter-spacing: 1.6px;
-  color: #748078;
+  letter-spacing: 1.5px;
+  color: #545c57;
   margin: 0;
+  font-weight: 800;
 }
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 9px;
-  color: #7d867d;
-  font-size: 10px;
+  gap: 10px;
+  color: #545c57;
+  font-size: 11px;
 }
 .location-pin {
-  font-size: 15px;
+  font-size: 23.5px;
 }
 .top-divider {
-  height: 20px;
+  height: 24px;
   border-left: 1px solid #dce1d7;
   margin: 0 4px;
 }
 .demo-pill,
 .count-pill {
-  background: #eef1e7;
-  border-radius: 3px;
+  background: #75a31222;
+  border-radius: 4px;
   color: #768075;
-  font-size: 9px;
+  font-size: 13px;
   padding: 6px 9px;
 }
 .content {
-  max-width: 1190px;
+  max-width: 2190px;
   margin: auto;
   padding: 42px 33px 35px;
 }
 .intro > .eyebrow {
-  margin-bottom: 18px;
+  margin-bottom: 15px;
 }
 .intro h1,
 .secondary-view h1 {
@@ -265,7 +267,7 @@ button:disabled {
   font-size: 11px;
 }
 .search-box:focus-within {
-  outline: 2px solid #9baf7d;
+  outline: 3px solid #799a49;
   outline-offset: 2px;
 }
 .search-box input::placeholder {
@@ -348,7 +350,7 @@ button:disabled {
 }
 /* City map, interactive SVG markers, and the selected-neighborhood panel. */
 .city-section {
-  margin-top: 42px;
+  margin-top: 10px;
 }
 .section-head {
   display: flex;
@@ -364,15 +366,18 @@ button:disabled {
 }
 .section-head h2 {
   font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 550;
+  font-style: normal;
+  font-variant: normal;
+  font-stretch: normal;
   letter-spacing: -0.35px;
   margin: 0;
   color: #34443b;
 }
 .count-pill {
-  font-size: 8px;
-  padding: 5px 8px;
+  font-size: 9.40px;
+  padding: 6px 7px;
 }
 .section-head p {
   font-size: 10px;
@@ -522,7 +527,7 @@ button:disabled {
 }
 .area-card {
   background: #fff;
-  padding: 22px 18px 17px;
+  padding: 20px 18px 17px;
   min-width: 0;
   border-left: 1px solid #e1e4dc;
 }
@@ -535,7 +540,7 @@ button:disabled {
   align-items: center;
 }
 .card-kicker span {
-  font-size: 13px;
+  font-size: 20px;
 }
 .area-heading {
   display: flex;
