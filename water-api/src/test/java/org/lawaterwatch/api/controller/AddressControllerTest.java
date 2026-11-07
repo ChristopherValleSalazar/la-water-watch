@@ -2,6 +2,7 @@ package org.lawaterwatch.api.controller;
 
 import org.junit.jupiter.api.Test;
 import org.lawaterwatch.api.dto.AddressLookupResponse;
+import org.lawaterwatch.api.service.MapResponseCache;
 import org.lawaterwatch.api.service.WaterSystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -29,6 +30,9 @@ class AddressControllerTest {
 
     @MockitoBean
     private WaterSystemService waterSystemService;
+
+    @MockitoBean
+    private MapResponseCache mapResponseCache;
 
     @Test
     void addressInBodyIsLookedUp() throws Exception {

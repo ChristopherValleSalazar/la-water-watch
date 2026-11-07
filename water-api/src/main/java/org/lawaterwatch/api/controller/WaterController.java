@@ -1,8 +1,13 @@
 package org.lawaterwatch.api.controller;
 
 import org.lawaterwatch.api.dto.*;
+import org.lawaterwatch.api.service.MapResponseCache;
 import org.lawaterwatch.api.service.WaterSystemService;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,9 +20,11 @@ import java.util.List;
 public class WaterController {
 
     private final WaterSystemService waterSystemService;
+    private final MapResponseCache mapResponseCache;
 
-    public WaterController(WaterSystemService waterSystemService) {
+    public WaterController(WaterSystemService waterSystemService, MapResponseCache mapResponseCache) {
         this.waterSystemService = waterSystemService;
+        this.mapResponseCache = mapResponseCache;
     }
 
     @GetMapping("/meta")
@@ -25,9 +32,31 @@ public class WaterController {
         return waterSystemService.meta();
     }
 
+    //Prebuilt bytes from MapResponseCache, gzipped when the browser accepts it (all do), the browser unzips before fetch().json()
+    //ETag lets a repeat visit get a 304 with no body instead of the whole map again
     @GetMapping("/systems/map")
-    public SystemMapResponse map() {
-        return waterSystemService.map();
+    public ResponseEntity<byte[]> map(@RequestHeader(value = HttpHeaders.ACCEPT_ENCODING, required = false) String acceptEncoding,
+                                      @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
+        MapResponseCache.Body body = mapResponseCache.get();
+        boolean gzip = acceptEncoding != null && acceptEncoding.contains("gzip");
+        String etag = gzip ? body.gzipEtag() : body.etag();
+
+        boolean unchanged = ifNoneMatch != null && ifNoneMatch.contains("\"" + etag + "\"");
+
+        var response = ResponseEntity.status(unchanged ? HttpStatus.NOT_MODIFIED : HttpStatus.OK)
+                .eTag(etag)
+                //no-cache = keep it but check the ETag first, so a data reload shows up on the next visit
+                .cacheControl(CacheControl.noCache())
+                .varyBy(HttpHeaders.ACCEPT_ENCODING);
+        if (unchanged) {
+            return response.build();
+        }
+        response.contentType(MediaType.APPLICATION_JSON);
+        if (gzip) {
+            response.header(HttpHeaders.CONTENT_ENCODING, "gzip");
+            return response.body(body.gzip());
+        }
+        return response.body(body.json());
     }
 
     @GetMapping("/systems/info-panel/{pwsid}")

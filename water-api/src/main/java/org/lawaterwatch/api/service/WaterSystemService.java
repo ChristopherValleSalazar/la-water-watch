@@ -59,7 +59,7 @@ public class WaterSystemService {
     }
 
     private static SystemMapResponse.Feature toFeature(WaterSystem system) {
-        return new SystemMapResponse.Feature(system.getGeometryGeoJson(), new SystemMapResponse.Properties(
+        return new SystemMapResponse.Feature(GeoJsonGeometry.roundCoordinates(system.getGeometryGeoJson()), new SystemMapResponse.Properties(
                 system.getPwsid(),
                 system.getName(),
                 system.getWaterScore(),

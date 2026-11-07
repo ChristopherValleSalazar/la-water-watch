@@ -3,6 +3,7 @@ package org.lawaterwatch.api.controller;
 import org.junit.jupiter.api.Test;
 import org.lawaterwatch.api.dto.LeaderboardRow;
 import org.lawaterwatch.api.dto.Sort;
+import org.lawaterwatch.api.service.MapResponseCache;
 import org.lawaterwatch.api.service.WaterSystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -26,6 +27,9 @@ class LeaderboardControllerTest {
 
     @MockitoBean
     private WaterSystemService waterSystemService;
+
+    @MockitoBean
+    private MapResponseCache mapResponseCache;
 
     @Test
     void missingSortDefaultsToNone() throws Exception {
