@@ -1,5 +1,6 @@
 package org.lawaterwatch.api.service;
 
+import org.lawaterwatch.api.client.CensusGeocodeClient;
 import org.lawaterwatch.api.dto.*;
 import org.lawaterwatch.api.entity.DataMeta;
 import org.lawaterwatch.api.entity.Violation;
@@ -28,12 +29,17 @@ public class WaterSystemService {
     private final WaterSystemRepository waterSystemRepository;
     private final DataMetaRepository dataMetaRepository;
     private final ViolationRepository violationRepository;
+    private final CensusGeocodeClient censusGeocodeClient;
+    private final SystemGeometryCache systemGeometryCache;
 
     public WaterSystemService(WaterSystemRepository waterSystemRepository, DataMetaRepository dataMetaRepository,
-                              ViolationRepository violationRepository) {
+                              ViolationRepository violationRepository, CensusGeocodeClient censusGeocodeClient,
+                              SystemGeometryCache systemGeometryCache) {
         this.waterSystemRepository = waterSystemRepository;
         this.dataMetaRepository = dataMetaRepository;
         this.violationRepository = violationRepository;
+        this.censusGeocodeClient = censusGeocodeClient;
+        this.systemGeometryCache = systemGeometryCache;
     }
 
     public MetaResponse meta() {
@@ -178,5 +184,18 @@ public class WaterSystemService {
         return new AvgScoreResponse(
                 (int) Math.round(waterTotal / systemCount),
                 (int) Math.round(burdenTotal / systemCount));
+    }
+
+    //Geocode the address, then find which system polygon covers it
+    //Not found by the geocoder gives all nulls, found but outside every system gives coordinates with a null pwsid
+    public AddressLookupResponse addressLookup(String address) {
+        GeoCodeResponse.AddressMatch match = censusGeocodeClient.geocode(address);
+        if (match == null || match.coordinates() == null) {
+            return AddressLookupResponse.notFound();
+        }
+
+        double lat = match.coordinates().y();
+        double lng = match.coordinates().x();
+        return new AddressLookupResponse(match.matchedAddress(), lat, lng, systemGeometryCache.findPwsid(lat, lng));
     }
 }

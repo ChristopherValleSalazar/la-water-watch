@@ -2,6 +2,7 @@ package org.lawaterwatch.api.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.lawaterwatch.api.client.CensusGeocodeClient;
 import org.lawaterwatch.api.dto.LeaderboardRow;
 import org.lawaterwatch.api.dto.Sort;
 import org.lawaterwatch.api.entity.WaterSystem;
@@ -22,7 +23,8 @@ class LeaderboardTest {
     private final WaterSystemRepository waterSystemRepository = mock(WaterSystemRepository.class);
     private final ViolationRepository violationRepository = mock(ViolationRepository.class);
     private final WaterSystemService service = new WaterSystemService(
-            waterSystemRepository, mock(DataMetaRepository.class), violationRepository);
+            waterSystemRepository, mock(DataMetaRepository.class), violationRepository,
+            mock(CensusGeocodeClient.class), mock(SystemGeometryCache.class));
 
     private static WaterSystem system(String pwsid, String name, Integer waterScore, Integer burdenScore,
                                       Integer population, Integer tracts) {

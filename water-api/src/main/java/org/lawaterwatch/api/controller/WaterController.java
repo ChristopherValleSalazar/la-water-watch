@@ -2,7 +2,9 @@ package org.lawaterwatch.api.controller;
 
 import org.lawaterwatch.api.dto.*;
 import org.lawaterwatch.api.service.WaterSystemService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -41,5 +43,14 @@ public class WaterController {
     @GetMapping("/systems/leaderboard")
     public List<LeaderboardRow> leaderboard(@RequestParam(required = false, defaultValue = "NONE") Sort sort) {
         return waterSystemService.leaderboard(sort);
+    }
+
+    //POST so the address travels in the body, not the URL, and stays out of access logs
+    @PostMapping("/address")
+    public AddressLookupResponse addressLookup(@RequestBody AddressLookupRequest request) {
+        if (request.address() == null || request.address().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "address is required");
+        }
+        return waterSystemService.addressLookup(request.address());
     }
 }

@@ -1,6 +1,7 @@
 package org.lawaterwatch.api.service;
 
 import org.junit.jupiter.api.Test;
+import org.lawaterwatch.api.client.CensusGeocodeClient;
 import org.lawaterwatch.api.dto.AvgScoreResponse;
 import org.lawaterwatch.api.entity.WaterSystem;
 import org.lawaterwatch.api.repository.DataMetaRepository;
@@ -18,7 +19,8 @@ class AvgScoreTest {
 
     private final WaterSystemRepository waterSystemRepository = mock(WaterSystemRepository.class);
     private final WaterSystemService service = new WaterSystemService(
-            waterSystemRepository, mock(DataMetaRepository.class), mock(ViolationRepository.class));
+            waterSystemRepository, mock(DataMetaRepository.class), mock(ViolationRepository.class),
+            mock(CensusGeocodeClient.class), mock(SystemGeometryCache.class));
 
     //The divisor is the fixed tracked list, not however many rows came back
     private final double listSize = WaterSystemList.PWSIDS.size();
