@@ -123,7 +123,7 @@ Start with `src/App.tsx`. The comments there explain the main TypeScript and Rea
 1. `type Area` describes the fields in one sample neighborhood. `type Page` is a TypeScript union, which limits navigation to the three page-name strings written there.
 2. `areas` is a normal JavaScript array containing the seven sample neighborhoods. Its `Area[]` annotation asks TypeScript to check each item.
 3. `useState(...)` stores values that can change while the app is open, such as the selected neighborhood, typed search, or active page. It returns a pair: the current value and a setter function. Calling its setter (for example, `setSelectedName`) tells React to update the screen. In `useState<Page>(...)`, `<Page>` is the value's TypeScript type.
-4. `filter(...)` makes the suggestions from that small local array. `find(...)` locates one matching area. There is no network request behind either operation.
+4. `sort(...)` makes the suggestions from that small local array. `find(...)` locates one matching area. There is no network request behind either operation.
 5. The returned JSX looks like HTML, with a few differences: dynamic JavaScript values go inside `{braces}`, and CSS classes are written as `className`.
 6. Event handlers such as `onClick`, `onChange`, and `onSubmit` run when the user interacts. The same `selectArea` function is used by search results, the ZIP shortcut, and map markers so the map and detail card stay in sync.
 
