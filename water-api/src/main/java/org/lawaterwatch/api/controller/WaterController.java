@@ -1,6 +1,7 @@
 package org.lawaterwatch.api.controller;
 
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.lawaterwatch.api.dto.*;
@@ -21,6 +22,70 @@ import java.util.List;
 @RequestMapping("/api")
 public class WaterController {
 
+    private static final String MAP_EXAMPLE = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                      [
+                        [-118.47149, 34.00177],
+                        [-118.47132, 34.00185],
+                        [-118.46925, 34.00298],
+                        [-118.47149, 34.00177]
+                      ]
+                    ]
+                  },
+                  "properties": {
+                    "pwsid": "CA1910146",
+                    "name": "SANTA MONICA-CITY, WATER DIVISION",
+                    "waterScore": 67,
+                    "burdenScore": 36,
+                    "labelLat": 34.02320449967911,
+                    "labelLng": -118.48192445631416,
+                    "population": 90729
+                  }
+                },
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "type": "MultiPolygon",
+                    "coordinates": [
+                      [
+                        [
+                          [-118.50785, 34.03739],
+                          [-118.50671, 34.03695],
+                          [-118.50569, 34.03893],
+                          [-118.50785, 34.03739]
+                        ]
+                      ],
+                      [
+                        [
+                          [-118.24005, 33.7634],
+                          [-118.24012, 33.76403],
+                          [-118.24023, 33.76512],
+                          [-118.24005, 33.7634]
+                        ]
+                      ]
+                    ]
+                  },
+                  "properties": {
+                    "pwsid": "CA1910067",
+                    "name": "LOS ANGELES-CITY, DEPT. OF WATER & POWER",
+                    "waterScore": 50,
+                    "burdenScore": 68,
+                    "labelLat": 34.02041600078531,
+                    "labelLng": -118.28770702198409,
+                    "population": 3875566
+                  }
+                }
+              ]
+            }
+            """;
+
     private final WaterSystemService waterSystemService;
     private final MapResponseCache mapResponseCache;
 
@@ -37,8 +102,13 @@ public class WaterController {
     //Prebuilt bytes from MapResponseCache, gzipped when the browser accepts it (all do), the browser unzips before fetch().json()
     //ETag lets a repeat visit get a 304 with no body instead of the whole map again
     //Returns raw bytes, so Swagger needs to be told the real shape of the JSON
-    @ApiResponse(responseCode = "200", description = "GeoJSON FeatureCollection, one feature per water system",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SystemMapResponse.class)))
+    //The example is a real response trimmed to 2 of the 11 features, each ring cut to 4 points
+    @ApiResponse(responseCode = "200",
+            description = "GeoJSON FeatureCollection, one feature per water system. Geometry is a Polygon or a MultiPolygon, "
+                    + "coordinates are [lng, lat]: pass the response straight to Leaflet's L.geoJSON",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = SystemMapResponse.class),
+                    examples = @ExampleObject(name = "Trimmed real response", value = MAP_EXAMPLE)))
     @GetMapping("/systems/map")
     public ResponseEntity<byte[]> map(@RequestHeader(value = HttpHeaders.ACCEPT_ENCODING, required = false) String acceptEncoding,
                                       @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
