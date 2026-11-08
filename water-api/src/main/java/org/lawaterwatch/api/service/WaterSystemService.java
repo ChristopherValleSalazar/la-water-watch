@@ -71,7 +71,7 @@ public class WaterSystemService {
 
     public SystemInfoPanel infoPanel(String pwsid) {
         if(!WaterSystemList.contains(pwsid)) {
-            throw new PwsidNotFoundException(pwsid + " does not exist");
+            throw new PwsidNotFoundException(pwsid);
         }
 
         WaterSystem system = waterSystemRepository.findById(pwsid)

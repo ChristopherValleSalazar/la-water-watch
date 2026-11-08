@@ -1,5 +1,8 @@
 package org.lawaterwatch.api.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.lawaterwatch.api.dto.*;
 import org.lawaterwatch.api.service.MapResponseCache;
 import org.lawaterwatch.api.service.WaterSystemService;
@@ -34,6 +37,9 @@ public class WaterController {
 
     //Prebuilt bytes from MapResponseCache, gzipped when the browser accepts it (all do), the browser unzips before fetch().json()
     //ETag lets a repeat visit get a 304 with no body instead of the whole map again
+    //Returns raw bytes, so Swagger needs to be told the real shape of the JSON
+    @ApiResponse(responseCode = "200", description = "GeoJSON FeatureCollection, one feature per water system",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = SystemMapResponse.class)))
     @GetMapping("/systems/map")
     public ResponseEntity<byte[]> map(@RequestHeader(value = HttpHeaders.ACCEPT_ENCODING, required = false) String acceptEncoding,
                                       @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
