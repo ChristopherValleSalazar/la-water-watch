@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { CircularScore } from "./CircularScore";
+import { displayName, shortName } from "./systemName";
+import { PIN_COLOR, PIN_DOT, PIN_PATH, PIN_VIEWBOX } from "./pinIcon";
+import { BETTER_COLOR, WORSE_COLOR, scoreColor, scoreTint } from "./scoreColor";
 
 // Shape of GET /api/systems/info-panel/{pwsid} (SystemInfoPanel on the backend). Only the fields we show.
 type Violation = {
@@ -71,17 +74,30 @@ const PERCENTILES: { key: keyof SystemInfo; label: string; topic: TopicKey }[] =
   { key: "avgCleanupSitesPctl", label: "Cleanup sites", topic: "cleanupSites" },
 ];
 
-// "LOS ANGELES-CITY, DEPT. OF WATER & POWER" -> "Los Angeles-City, Dept. of Water & Power"
-function displayName(raw: string): string {
-  const small = new Set(["of", "and", "&"]);
-  return raw
-    .toLowerCase()
-    .replace(/\s*-\s*/g, "-")
-    .split(" ")
-    .map((word, i) =>
-      i > 0 && small.has(word) ? word : word.replace(/(^|-)([a-z])/g, (_, sep, ch) => sep + ch.toUpperCase()),
-    )
-    .join(" ");
+// Where each tab's numbers come from, shown at the bottom left of the panel. Links checked 2026-11-12.
+const SOURCES = {
+  ces: { label: "CalEnviroScreen 5.0 (July 2026), OEHHA", href: "https://oehha.ca.gov/calenviroscreen" },
+  sdwis: {
+    label: "EPA Safe Drinking Water Information System (SDWIS)",
+    href: "https://www.epa.gov/ground-water-and-drinking-water/safe-drinking-water-information-system-sdwis-federal-reporting",
+  },
+  sabl: {
+    label: "CA State Water Board, System Area Boundaries (SABL)",
+    href: "https://gispublic.waterboards.ca.gov/portal/home/item.html?id=fbba842bf134497c9d611ad506ec48cc",
+  },
+};
+
+function PanelSources({ sources }: { sources: { label: string; href: string }[] }) {
+  return (
+    <p className="panel-sources">
+      <span>Source{sources.length > 1 ? "s" : ""}:</span>
+      {sources.map((s) => (
+        <a key={s.href} href={s.href} target="_blank" rel="noreferrer">
+          {s.label} ↗
+        </a>
+      ))}
+    </p>
+  );
 }
 
 const fmt = (n: number | null | undefined) => (n == null ? "–" : n.toLocaleString("en-US"));
@@ -107,19 +123,22 @@ function AverageBar({
   const diff = value - avg;
   const better = higherIsBetter ? diff > 0 : diff < 0;
   const sign = diff > 0 ? "+" : diff < 0 ? "−" : "±";
+  // Better than average is green, worse is red (darker shades than the bar, so the number doesn't blend in)
+  const diffColor = diff === 0 ? undefined : better ? BETTER_COLOR : WORSE_COLOR;
   return (
     <div className="avg-bar">
       <div className="avg-bar-head">
         <span>
           {label} vs. average ({avg})
         </span>
-        <b className={diff === 0 ? "" : better ? "is-better" : "is-worse"}>
+        <b style={{ color: diffColor }}>
           {sign}
           {Math.abs(diff)}
         </b>
       </div>
       <div className="avg-bar-track">
-        <i style={{ width: `${value}%` }} />
+        {/* The bar uses the score's own color from the shared scale (burden is flipped: higher = worse) */}
+        <i style={{ width: `${value}%`, background: scoreColor(higherIsBetter ? value : 100 - value) }} />
         <span className="avg-bar-tick" style={{ left: `${avg}%` }} title={`Average: ${avg}`} />
       </div>
     </div>
@@ -166,12 +185,12 @@ function formatAddress(raw: string): string {
   return state && zip ? `${street.join(", ")}, ${state} ${zip}` : raw;
 }
 
-// Same blue as the address pin on the map, so the two read as one thing
+// The same pin as the address marker on the map (pinIcon.ts), so the two read as one thing
 function PinIcon() {
   return (
-    <svg viewBox="0 0 30 42" width="11" height="15" aria-hidden="true">
-      <path d="M15 1C7.3 1 1 7.2 1 14.9 1 25.3 15 41 15 41s14-15.7 14-26.1C29 7.2 22.7 1 15 1z" fill="#2563eb" />
-      <circle cx="15" cy="15" r="5.5" fill="#fff" />
+    <svg viewBox={PIN_VIEWBOX} width="11" height="15" aria-hidden="true">
+      <path d={PIN_PATH} fill={PIN_COLOR} />
+      <circle {...PIN_DOT} fill="#fff" />
     </svg>
   );
 }
@@ -194,7 +213,10 @@ function PanelHeader({
   return (
     <div className="selected-water-header">
       <div className="header-left">
-        <span className="field-label">{isHome ? "YOUR WATER SYSTEM" : "SELECTED WATER SYSTEM"}</span>
+        {/* Your own system gets the same green highlight as its leaderboard row */}
+        <span className={`field-label ${isHome ? "is-home" : ""}`}>
+          {isHome ? "YOUR WATER SYSTEM" : "SELECTED WATER SYSTEM"}
+        </span>
         {isHome && home && <p className="home-address">Serves {formatAddress(home.address)}</p>}
         {!isHome && home && onSelect && (
           <button type="button" className="back-home" onClick={() => onSelect(home.pwsid)}>
@@ -205,9 +227,6 @@ function PanelHeader({
     </div>
   );
 }
-
-// "SANTA MONICA-CITY, WATER DIVISION" -> "Santa Monica-City", short enough for the back link
-const shortName = (raw: string) => displayName(raw.split(",")[0]);
 
 // How long a switch between systems may take before the old panel is replaced by the skeleton
 const SKELETON_DELAY_MS = 300;
@@ -416,7 +435,18 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
               <Gauge value={info.waterScore} badness={100 - (info.waterScore ?? 100)} size="large" />
             </div>
             <div className="score-copy">
-              <div className="concern-pill">{concernLabel}</div>
+              {/* Dot and tint follow the water score's color on the map */}
+              <div
+                className="concern-pill"
+                style={
+                  {
+                    background: scoreTint(info.waterScore),
+                    "--concern-dot": scoreColor(info.waterScore),
+                  } as React.CSSProperties
+                }
+              >
+                {concernLabel}
+              </div>
               <p>Water score: {info.waterScore == null ? "–" : `${info.waterScore} of 100`}</p>
               <p>Burden score: {info.burdenScore == null ? "–" : `${info.burdenScore} of 100`}</p>
             </div>
@@ -430,15 +460,26 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
             <AverageBar label="Water score" value={info.waterScore} avg={avg?.avgWaterScore} higherIsBetter />
             <AverageBar label="Burden score" value={info.burdenScore} avg={avg?.avgBurdenScore} higherIsBetter={false} />
           </div>
+          <PanelSources sources={[SOURCES.ces]} />
         </div>
       ) : tab === "waterRecord" ? (
         <div className="panel-body" role="tabpanel">
           <div className="glance-grid record-summary">
             <div className="metric-tile"><strong>{info.violations.length}</strong><span>Recorded violations</span></div>
             <div className="metric-tile"><strong>{healthBased}</strong><span>Health-based</span></div>
-            <div className="metric-tile"><strong>{latestViolation ?? "None"}</strong><span>Latest start date</span></div>
+            <div className="metric-tile">
+              {latestViolation ? (
+                <strong>{latestViolation}</strong>
+              ) : (
+                <strong className="metric-empty">No violations on record</strong>
+              )}
+              <span>Latest start date</span>
+            </div>
           </div>
           <ul className="water-record-list">
+            {info.violations.length === 0 && (
+              <li className="record-empty">EPA has no violations on record for this water system.</li>
+            )}
             {info.violations.map((violation) => (
               <li key={violation.violationId}>
                 <div>
@@ -450,6 +491,7 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
             ))}
           </ul>
           <p className="water-note">Records are reported by the water system and regulatory sources; they do not alone determine current tap-water safety.</p>
+          <PanelSources sources={[SOURCES.sdwis]} />
         </div>
       ) : (
         <div className="panel-body" role="tabpanel">
@@ -475,13 +517,14 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
             </div>
             <div>
               <dt>Latest violation</dt>
-              <dd>{latestViolation ?? "None on record"}</dd>
+              <dd>{latestViolation ?? "No violations on record"}</dd>
             </div>
             <div>
               <dt>Phone</dt>
               <dd>{info.phone ? <a href={`tel:${info.phone}`}>{info.phone}</a> : "–"}</dd>
             </div>
           </dl>
+          <PanelSources sources={[SOURCES.sabl, SOURCES.ces]} />
         </div>
       )}
     </aside>
