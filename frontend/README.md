@@ -1,19 +1,21 @@
 # LA Water Watch frontend mockup
 
-This folder contains an early, interactive visual mockup based on the team's Figma design. It is meant to make the layout and basic interactions easy to review and discuss. It is not a finished product and does not look up real water-quality data.
+This folder contains an early React frontend based on the team's Figma design. The Leaflet map loads water-system boundaries from the Java backend, and the side panel defaults to LADWP (`CA1910067`) using real backend records. Other areas of the experience remain prototypes.
 
 ## What you can try
 
-- Search the built-in sample neighborhoods by name or ZIP code.
-- Select the **90026** shortcut or click one of the map markers.
-- Change the map layer, zoom the illustrative map, and open the sample water overview.
+- Pan and zoom the water-system boundary map.
+- View LADWP's details on initial load, then click a water-system polygon to show that system's name, water score, population served, and service connections.
+- Identify the selected system by its thicker outline, which matches the region's color. Disconnected pieces of the same system are selected together.
+- Open **View water overview** for environmental indicators and violation history.
+- Use **Try again** if the panel cannot load its data.
 - Switch between Explore, Environmental context, and Resources & action.
 - Resize the browser to see the compact layout.
-- Use Tab to reach suggestion buttons and map markers, then Enter or Space to select one. Escape closes search suggestions.
+- Use Tab to reach the overview control, then Enter or Space to expand it.
 
-The displayed scores, systems, and concerns are illustrative sample content. The location button does not ask for your location. Search, navigation, and map selection only update the page in your browser; they do not call the backend or send a search to a service.
+The water score comes from the backend's CalEnviroScreen calculation, not a direct tap-water measurement. Missing values display as “No data” or “—”; zero is a valid score. Unresolved contaminant names display their codes. The panel no longer uses the sample Silver Lake score, ZIP, concern, or comparison.
 
-The map-layer buttons currently demonstrate selection and update the legend text; they do not yet show different real map datasets. The resources and context cards are also placeholders for design review.
+The former map-layer switch has been removed. Polygon clicks now update the panel; numbered score markers will be added in a later step. Address suggestions call ArcGIS, but selecting an address still calls an unfinished backend route. The resources and context cards remain placeholders.
 
 ## Tools used
 
@@ -28,14 +30,15 @@ The map-layer buttons currently demonstrate selection and update the legend text
 | **Node.js**    | Runs development tools on your computer. Visitors do not need Node.js to view a deployed static site.                                                                                    |
 | **pnpm**       | Downloads and records the project's JavaScript packages. It is similar to npm; this project includes `pnpm-lock.yaml` to keep installs consistent.                                       |
 | **Leaflet**    | Draws the interactive map. `react-leaflet` connects it to React; `@types/leaflet` and `@types/geojson` provide its TypeScript types.                                                      |
-| **SVG**        | Draws the illustrative map as scalable shapes and markers. A marker is an interactive SVG group, so it can update the selected neighborhood.                                             |
+| **SVG**        | Leaflet uses SVG to draw the water-system boundaries over the map tiles. |
 
 ## Requirements
 
 - Node.js **22.13 or newer**. This is required by pnpm 11; this mockup was built with Node.js 22.21.0.
 - pnpm **11.25.0**, the package-manager version used for this mockup.
 - A modern browser such as Microsoft Edge, Chrome, or Firefox.
-- Internet access for the first package install, so pnpm can download dependencies. The mockup itself does not fetch water data or remote fonts.
+- Internet access for the first package install, map tiles, and address suggestions. Water-system records come from the local backend, which downloads public datasets when needed.
+- The Java backend running at `http://localhost:8080` to populate the map and side panel. See the repository-root README for backend setup.
 
 Follow the setup steps below if these tools are not installed yet.
 
@@ -74,7 +77,7 @@ cd frontend
 pnpm install --frozen-lockfile
 ```
 
-This downloads React, Vite, TypeScript, and the other packages into `node_modules`, using the exact versions in `pnpm-lock.yaml`. You do not need to install those packages individually. The mockup runs independently of the Java backend and requires no API keys or database.
+This downloads React, Vite, TypeScript, and the other packages into `node_modules`, using the exact versions in `pnpm-lock.yaml`. You do not need to install those packages individually. No frontend API key is required; the backend maintains its own local SQLite database.
 
 If your terminal is already inside `frontend`, skip `cd frontend`.
 
@@ -97,7 +100,7 @@ From the `frontend` folder, run:
 pnpm dev
 ```
 
-Leave that terminal open and visit **http://localhost:3000** in your browser. Saving a source-file edit automatically updates the preview. Press **Ctrl+C** in the terminal to stop the server.
+Leave that terminal open and visit **http://127.0.0.1:3000** in your browser. Use this exact address because it is the frontend origin allowed by the backend. Saving a source-file edit automatically updates the preview. Press **Ctrl+C** in the terminal to stop the server.
 
 For later sessions, open a terminal in `frontend` and run `pnpm dev`. Repeat `pnpm install --frozen-lockfile` after pulling changes to `package.json` or `pnpm-lock.yaml`, or if `node_modules` is missing.
 
@@ -114,20 +117,16 @@ For later sessions, open a terminal in `frontend` and run `pnpm dev`. Repeat `pn
 pnpm build
 ```
 
-This first runs TypeScript's checks (`tsc -b`), then asks Vite to make the browser-ready files in `dist/`. That folder can be hosted by a static web host when the team is ready to deploy. A Docker development container is not needed for this small front-end-only mockup; it may be useful later if the team wants a consistent setup for both the React app and Spring Boot backend.
+This first runs TypeScript's checks (`tsc -b`), then asks Vite to make the browser-ready files in `dist/`. Backend URLs currently point to `localhost:8080`; they will need deployment configuration before the team hosts the frontend remotely.
 
 ## A guided tour of the code
 
-Start with `src/App.tsx`. The comments there explain the main TypeScript and React ideas as they appear in the mockup:
+Start with these components:
 
-1. `type Area` describes the fields in one sample neighborhood. `type Page` is a TypeScript union, which limits navigation to the three page-name strings written there.
-2. `areas` is a normal JavaScript array containing the seven sample neighborhoods. Its `Area[]` annotation asks TypeScript to check each item.
-3. `useState(...)` stores values that can change while the app is open, such as the selected neighborhood, typed search, or active page. It returns a pair: the current value and a setter function. Calling its setter (for example, `setSelectedName`) tells React to update the screen. In `useState<Page>(...)`, `<Page>` is the value's TypeScript type.
-4. `filter(...)` makes the suggestions from that small local array. `find(...)` locates one matching area. There is no network request behind either operation.
-5. The returned JSX looks like HTML, with a few differences: dynamic JavaScript values go inside `{braces}`, and CSS classes are written as `className`.
-6. Event handlers such as `onClick`, `onChange`, and `onSubmit` run when the user interacts. The same `selectArea` function is used by search results, the ZIP shortcut, and map markers so the map and detail card stay in sync.
-
-The score comparison is calculated from the rounded average of the seven sample scores. `reduce(...)` adds those scores together; dividing by the number of records gives the average. This keeps the displayed difference consistent when sample scores change.
+1. `src/App.tsx` owns navigation, the address location, and the selected system ID, initially LADWP (`CA1910067`). It passes that ID and its update function to the map, and the same ID to the panel.
+2. `src/SystemInfoPanel.tsx` accepts a system ID and requests `/api/systems/info-panel/{pwsid}`. It handles loading, non-success responses, retry, and cancellation of obsolete requests. Its expandable overview shows backend environmental indicators and dated violation records.
+3. `src/MapView.tsx` requests `/api/systems/map` once and draws a GeoJSON layer for each system. A polygon click calls `onSelectSystem(pwsid)`, updating App's selection. The selected ID determines the outline and fill emphasis; selection does not re-fetch the boundaries. Map loading failures offer a retry button.
+4. `src/AddressSearch.tsx` handles ArcGIS address suggestions. Its final address-check route is still unfinished.
 
 Other useful files:
 
@@ -137,4 +136,4 @@ Other useful files:
 - `package.json` lists the run/build commands and packages, pins the pnpm version, and declares the minimum Node.js version.
 - `tsconfig*.json` tells TypeScript how strictly to check the code.
 
-The map, score, and resource screens are intentionally simple and open to revision. The sample system assignments, scores, map geography, and resource descriptions should not be treated as verified facts.
+The context and resource screens remain design previews. The panel displays the backend's current dataset, including its missing fields and unresolved contaminant names; it does not invent replacement values.

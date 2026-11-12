@@ -1,72 +1,10 @@
 import { useState } from "react";
 import MapView from "./MapView";
 import AddressSearch from "./AddressSearch";
-
-// A type describes the allowed shape of one neighborhood record.
-// TypeScript checks these fields while we work, then removes the type information for the browser.
-type Area = {
-  name: string;
-  zip: string;
-  score: number;
-  concern: string;
-};
+import SystemInfoPanel from "./SystemInfoPanel";
 
 // This is a TypeScript "union": activeNav can only be one of these three exact strings.
 type Page = "explore" | "context" | "resources";
-
-// These illustrative records make the prototype interactive without requesting real data.
-const areas: Area[] = [
-  {
-    name: "Santa Monica",
-    zip: "90401",
-    score: 91,
-    concern: "Water system overview",
-  },
-  {
-    name: "Hollywood",
-    zip: "90028",
-    score: 85,
-    concern: "Filtering lead",
-  },
-  {
-    name: "Silver Lake",
-    zip: "90026",
-    score: 82,
-    concern: "Disinfection byproducts",
-  },
-  {
-    name: "Pasadena",
-    zip: "91101",
-    score: 72,
-    concern: "Water system overview",
-  },
-  {
-    name: "Downtown",
-    zip: "90012",
-    score: 76,
-    concern: "Disinfection byproducts",
-  },
-  {
-    name: "Boyle Heights",
-    zip: "90023",
-    score: 64,
-    concern: "Filtering lead",
-  },
-  {
-    name: "South LA",
-    zip: "90037",
-    score: 61,
-    concern: "Historical site context",
-  },
-];
-
-// Keep the initial selection and the ZIP shortcut tied to the same Silver Lake record.
-const defaultArea = areas[2];
-
-// Add the sample scores and divide by their count to get a rounded citywide demo average.
-const demoAverage = Math.round(
-  areas.reduce((total, area) => total + area.score, 0) / areas.length,
-);
 
 // The [] means this is a list. Each item must have an allowed page id, a label, and an icon glyph.
 const navItems: { id: Page; label: string; glyph: string }[] = [
@@ -89,19 +27,10 @@ function App() {
   // useState returns a current value and a setter: [value, updateFunction].
   // React recalculates this component and updates the screen when a setter is called.
   const [activeNav, setActiveNav] = useState<Page>("explore");
-  // These values are temporary page memory: map layer and the overview toggle.
-  const [activeLayer, setActiveLayer] = useState("Water quality");
-  const [expanded, setExpanded] = useState(false);
+  // App shares one selection: MapView changes it, and SystemInfoPanel reads it.
+  const [selectedSystemId, setSelectedSystemId] = useState("CA1910067");
   // Shared between AddressSearch (writes it) and MapView (reads it), so it lives here in the parent.
   const [location, setLocation] = useState<[number, number] | null>(null);
-
-  // The detail card still shows the Silver Lake demo record until real data is wired in.
-  const selected = defaultArea;
-  const scoreDifference = selected.score - demoAverage;
-  const comparisonLabel =
-    scoreDifference === 0
-      ? "At demo average"
-      : `${scoreDifference > 0 ? "↑" : "↓"} ${Math.abs(scoreDifference)} points`;
 
   // JSX is HTML-like page markup. Curly braces insert JavaScript values and expressions.
   return (
@@ -185,108 +114,28 @@ function App() {
                   <div>
                     <div className="title-row">
                       <h2 id="city-title">The citywide picture</h2>
-                      <span className="count-pill">7 demo neighborhoods</span>
                     </div>
                     <p>Different water stories. A shared landscape.</p>
-                  </div>
-                  <div
-                    className="layer-tabs"
-                    role="group"
-                    aria-label="Map layer"
-                  >
-                    {["Water quality", "Water systems", "Context"].map(
-                      (layer) => (
-                        <button
-                          aria-pressed={activeLayer === layer}
-                          className={activeLayer === layer ? "selected" : ""}
-                          key={layer}
-                          onClick={() => setActiveLayer(layer)}
-                        >
-                          {layer}
-                        </button>
-                      ),
-                    )}
                   </div>
                 </div>
 
                 <div className="map-and-card">
                   {/* The Leaflet map lives in MapView.tsx. */}
                   <div className="map-frame">
-                    <MapView marker={location} />
+                    <MapView
+                      marker={location}
+                      selectedSystemId={selectedSystemId}
+                      onSelectSystem={setSelectedSystemId}
+                    />
                   </div>
 
-                  <aside
-                    className="area-card"
-                    aria-label="Selected neighborhood details"
-                  >
-                    <div className="card-kicker">
-                      <span>⌖</span> YOUR SELECTED NEIGHBORHOOD
-                    </div>
-                    <div className="area-heading">
-                      <h3>{selected.name}</h3>
-                      <span className="zip-badge">{selected.zip}</span>
-                    </div>
-                    <p className="system-line">LADWP · Location match</p>
-                    <div className="score-line">
-                      <strong>{selected.score}</strong>
-                      <span>/ 100</span>
-                      <span className="score-tag">
-                        {selected.score >= 80
-                          ? "Lower concern"
-                          : "Explore context"}
-                      </span>
-                    </div>
-                    <div className="score-bar">
-                      <i style={{ width: `${selected.score}%` }} />
-                    </div>
-                    <small className="disclaimer">
-                      Illustrative score · not a safety determination
-                    </small>
-                    <div className="compare-line">
-                      <span>Compared with demo average</span>
-                      <b>{comparisonLabel}</b>
-                    </div>
-                    <div className="concern-block">
-                      <div className="concern-title">
-                        WHAT TO LOOK INTO{" "}
-                        <span title="A conversation starter, not a measurement">
-                          ⓘ
-                        </span>
-                      </div>
-                      <div className="concern-row">
-                        <i />
-                        {selected.concern}
-                        <span className="review-badge">Review</span>
-                      </div>
-                      <p>
-                        A starting point for questions—not a measurement at your
-                        tap.
-                      </p>
-                    </div>
-                    <button
-                      className="overview-button"
-                      onClick={() => setExpanded((value) => !value)}
-                      aria-expanded={expanded}
-                    >
-                      {expanded ? "Hide water overview" : "View water overview"}{" "}
-                      <span>{expanded ? "↑" : "→"}</span>
-                    </button>
-                    {expanded && (
-                      <div className="overview-detail">
-                        <strong>Sample overview</strong>
-                        <p>
-                          This concept uses illustrative neighborhood values. A
-                          future version would show the water system’s published
-                          report, date, and source.
-                        </p>
-                      </div>
-                    )}
-                  </aside>
+                  {/* A new key resets the old details and overview when selection changes. */}
+                  <SystemInfoPanel key={selectedSystemId} systemId={selectedSystemId} />
                 </div>
               </section>
               <p className="demo-disclaimer">
-                <span>ⓘ</span> Independent community tool · Demo values are
-                illustrative and are not water quality measurements.
+                <span>ⓘ</span> Independent community tool · Scores summarize public
+                datasets and are not measurements at your tap.
               </p>
             </>
           ) : activeNav === "context" ? (
