@@ -1,0 +1,190 @@
+/* Leaderboard: a card under the map with a sort menu in its top right corner. */
+.leaderboard {
+  margin-top: 18px;
+  background: #fff;
+  border: 1px solid #d9ded3;
+  border-radius: 8px;
+  padding: 18px 18px 8px;
+}
+.leaderboard-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.leaderboard-head h2 {
+  margin: 0;
+  font-size: 17px;
+  color: #24352f;
+}
+.leaderboard-head p {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #778077;
+}
+
+/* Sort dropdown */
+.sort-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+.sort-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d9ded3;
+  background: #eef0e8;
+  color: #45554a;
+  font-size: 12px;
+  padding: 8px 11px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.sort-button:hover {
+  background: #e5e9de;
+}
+.sort-options {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 1000; /* above Leaflet's panes */
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid #d9ded3;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px #1e392226;
+}
+.sort-options button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  color: #45554a;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+.sort-options button:hover {
+  background: #f1f4ec;
+}
+.sort-options button.active {
+  background: #e3f0da;
+  color: #2f5a2a;
+  font-weight: 600;
+}
+
+/* Table */
+.leaderboard-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.leaderboard th,
+.leaderboard td {
+  padding: 10px 12px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid #eef0e8;
+}
+.leaderboard thead th {
+  color: #788178;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+/* First column (system name) is left aligned and stays put while the numbers scroll on phones. */
+.leaderboard th:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: #fff;
+}
+.leaderboard tbody tr:last-child > * {
+  border-bottom: 0;
+}
+.leaderboard td {
+  color: #45554a;
+  font-variant-numeric: tabular-nums;
+}
+.system-name {
+  display: block;
+  font-weight: 600;
+  color: #24352f;
+  white-space: normal;
+  min-width: 180px;
+  max-width: 300px;
+}
+.system-pwsid {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: #98a097;
+  margin-top: 2px;
+}
+.leaderboard tbody.is-loading {
+  opacity: 0.5;
+}
+
+/* The system picked on the map or found by the address search */
+.leaderboard tr.selected > * {
+  background: #e3f0da;
+}
+.leaderboard tr.selected > th:first-child {
+  box-shadow: inset 4px 0 0 #4f9a45;
+}
+.leaderboard tr.selected .system-name {
+  color: #2f5a2a;
+}
+
+.leaderboard-message {
+  color: #778077;
+  font-size: 12px;
+  text-align: center !important;
+  padding: 18px 0;
+}
+
+/* Phones: stack the title over the sort button and tighten the cells. */
+@media (max-width: 680px) {
+  .leaderboard {
+    padding: 14px 12px 6px;
+  }
+  .leaderboard-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .sort-button {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .sort-button-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sort-options {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+  .sort-options button {
+    padding: 11px 10px; /* bigger touch targets */
+  }
+  .leaderboard th,
+  .leaderboard td {
+    padding: 9px 8px;
+  }
+  .system-name {
+    min-width: 140px;
+    max-width: 170px;
+  }
+}

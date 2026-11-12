@@ -1,13 +1,13 @@
 /* Shared colors, font defaults, and a small reset for consistent browser rendering. */
 :root {
-  font-family: "Segoe UI", Arial, sans-serif;
-  color: #24352f;
+  font-family: 'DM Sans', sans-serif;
+  color: #273d34;
   background: #f7f8f3;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   font-optical-sizing: auto;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
 }
 * {
@@ -34,6 +34,7 @@ button:disabled {
   cursor: default;
   opacity: 0.45;
 }
+
 /* Desktop frame: the sidebar stays beside the page content. */
 .app-shell {
   min-height: 100vh;
@@ -78,6 +79,7 @@ button:disabled {
   color: #cad7ca;
   margin: 12px 6px 52px;
 }
+
 /* Sidebar navigation and its small supporting project description. */
 .primary-nav {
   display: grid;
@@ -110,7 +112,7 @@ button:disabled {
 .icon {
   width: 16px;
   text-align: center;
-  color: #c8d9c0;
+  color: #7d9d7e;
   font-size: 18px;
   line-height: 1;
 }
@@ -173,51 +175,54 @@ button:disabled {
   min-width: 0;
   flex: 1;
 }
+
 /* Header, page width, title, and local ZIP search. */
 .topbar {
   height: 61px;
-  border-bottom: 1px solid #e0e3da;
+  border-bottom: 1px solid #bdbdbd64;
   padding: 0 34px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-weight: 520;
 }
 .eyebrow {
   font-size: 9px;
-  letter-spacing: 1.6px;
-  color: #748078;
+  letter-spacing: 1.5px;
+  color: #545c57;
   margin: 0;
+  font-weight: 800;
 }
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 9px;
-  color: #7d867d;
-  font-size: 10px;
+  gap: 10px;
+  color: #545c57;
+  font-size: 11px;
 }
 .location-pin {
-  font-size: 15px;
+  font-size: 23.5px;
 }
 .top-divider {
-  height: 20px;
+  height: 24px;
   border-left: 1px solid #dce1d7;
   margin: 0 4px;
 }
 .demo-pill,
 .count-pill {
-  background: #eef1e7;
-  border-radius: 3px;
+  background: #75a31222;
+  border-radius: 4px;
   color: #768075;
-  font-size: 9px;
+  font-size: 13px;
   padding: 6px 9px;
 }
 .content {
-  max-width: 1190px;
+  max-width: 2190px;
   margin: auto;
   padding: 42px 33px 35px;
 }
 .intro > .eyebrow {
-  margin-bottom: 18px;
+  margin-bottom: 15px;
 }
 .intro h1,
 .secondary-view h1 {
@@ -238,6 +243,76 @@ button:disabled {
   margin: 13px 0 27px;
   line-height: 1.65;
 }
+.system-search {
+  position: relative;
+  width: min(600px, 100%);
+  margin: 0 0 20px;
+}
+.system-search label {
+  display: block;
+  margin-bottom: 6px;
+  color: #667168;
+  font-size: 11px;
+}
+.system-search input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 15px;
+  outline: none;
+}
+.system-search input:focus {
+  border-color: #4a7dff;
+  box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.15);
+}
+.system-suggestions {
+  position: absolute;
+  z-index: 2000;
+  top: 100%;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 4px;
+  padding: 4px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+.system-suggestions button,
+.system-suggestions p {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: #333;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+}
+.system-suggestions button {
+  cursor: pointer;
+}
+.system-suggestions button:hover,
+.system-suggestions button:focus {
+  background: #f4f7ff;
+}
+.system-suggestions p,
+.system-search-status {
+  color: #778079;
+}
+.system-search-status {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
 .search-box {
   height: 52px;
   width: min(660px, 100%);
@@ -248,7 +323,7 @@ button:disabled {
   align-items: center;
   padding: 6px 6px 6px 15px;
   position: relative;
-  box-shadow: 0 2px 5px #213b2c08;
+  box-shadow: 0 2px 5px #5cca8a08;
 }
 .search-icon {
   font-size: 24px;
@@ -265,7 +340,7 @@ button:disabled {
   font-size: 11px;
 }
 .search-box:focus-within {
-  outline: 2px solid #9baf7d;
+  outline: 3px solid #799a49;
   outline-offset: 2px;
 }
 .search-box input::placeholder {
@@ -293,9 +368,10 @@ button:disabled {
   white-space: nowrap;
 }
 .search-submit span {
-  font-size: 17px;
+  font-size: 20px;
   margin-left: 18px;
 }
+
 /* Search suggestions float under the input while the user is typing. */
 .suggestions {
   position: absolute;
@@ -346,9 +422,10 @@ button:disabled {
   color: #59745a;
   margin: 8px 0 0;
 }
+
 /* City map, interactive SVG markers, and the selected-neighborhood panel. */
 .city-section {
-  margin-top: 42px;
+  margin-top: 10px;
 }
 .section-head {
   display: flex;
@@ -364,15 +441,18 @@ button:disabled {
 }
 .section-head h2 {
   font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 550;
+  font-style: normal;
+  font-variant: normal;
+  font-stretch: normal;
   letter-spacing: -0.35px;
   margin: 0;
   color: #34443b;
 }
 .count-pill {
-  font-size: 8px;
-  padding: 5px 8px;
+  font-size: 9.40px;
+  padding: 6px 7px;
 }
 .section-head p {
   font-size: 10px;
@@ -400,11 +480,13 @@ button:disabled {
   color: #45554a;
   box-shadow: 0 1px 3px #1e39220d;
 }
+
 .map-and-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 230px;
+  grid-template-columns: minmax(0, 1fr) minmax(310px, 30%);
+  align-items: stretch;
   border: 1px solid #d9ded3;
-  border-radius: 8px;
+  border-radius: 22px; /* Rounded corners for the entire map-and-card container */
   overflow: hidden;
   background: #e9eee4;
   min-height: 390px;
@@ -496,472 +578,509 @@ button:disabled {
     sans-serif;
   fill: #455143;
 }
-.map-legend {
-  position: absolute;
-  left: 14px;
-  bottom: 13px;
-  display: flex;
-  gap: 11px;
-  align-items: center;
-  color: #748075;
-  font-size: 8px;
-}
-.legend-chip {
-  background: #fff;
-  padding: 7px 9px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.legend-chip i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #abc188;
-}
-.area-card {
-  background: #fff;
-  padding: 22px 18px 17px;
-  min-width: 0;
-  border-left: 1px solid #e1e4dc;
-}
-.card-kicker {
-  color: #788178;
-  font-size: 8px;
-  letter-spacing: 1px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.card-kicker span {
-  font-size: 13px;
-}
-.area-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 17px;
-  gap: 8px;
-}
-.area-heading h3 {
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 21px;
-  letter-spacing: -0.6px;
-  color: #33453a;
-  margin: 0;
-  font-weight: 700;
-}
-.zip-badge {
-  border: 1px solid #e2e5de;
-  border-radius: 3px;
-  padding: 5px 7px;
-  font-size: 9px;
-  color: #737d73;
-}
-.system-line {
-  font-size: 9px;
-  color: #858d84;
-  margin: 6px 0 17px;
-}
-.score-line {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #768077;
-}
-.score-line strong {
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-weight: 500;
-  font-size: 39px;
-  line-height: 1;
-  color: #31483a;
-  letter-spacing: -1.8px;
-}
-.score-line > span:nth-child(2) {
-  font-size: 10px;
-  margin-top: 11px;
-}
-.score-tag {
-  margin-left: auto;
-  background: #f0f3e8;
-  border-radius: 3px;
-  color: #71805e;
-  padding: 6px 7px;
-  font-size: 8px;
-}
-.score-bar {
-  height: 5px;
-  background: #eff0e9;
-  border-radius: 8px;
-  margin: 11px 0 7px;
-  overflow: hidden;
-}
-.score-bar i {
-  height: 100%;
-  background: #a8ba79;
-  display: block;
-  border-radius: 8px;
-  transition: width 0.2s;
-}
-.disclaimer {
-  font-size: 8px;
-  color: #9a9f97;
-}
-.compare-line {
-  border-bottom: 1px solid #edf0e9;
-  padding: 14px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 8px;
-  color: #899187;
-  gap: 6px;
-}
-.compare-line b {
-  font-weight: 500;
-  color: #526151;
-  white-space: nowrap;
-}
-.concern-block {
-  padding-top: 14px;
-}
-.concern-title {
-  font-size: 8px;
-  letter-spacing: 0.9px;
-  color: #828980;
-  display: flex;
-  justify-content: space-between;
-}
-.concern-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 9px;
-  color: #58655b;
-  margin: 13px 0 7px;
-}
-.concern-row > i {
-  width: 6px;
-  height: 6px;
-  background: #c5aa64;
-  border-radius: 50%;
-  flex: 0 0 6px;
-}
-.review-badge {
-  margin-left: auto;
-  background: #f4f0e3;
-  color: #8e7c51;
-  padding: 4px 6px;
-  border-radius: 2px;
-  font-size: 8px;
-}
-.concern-block > p {
-  font-size: 8px;
-  line-height: 1.6;
-  color: #9a9f97;
-  margin: 0;
-}
-.overview-button {
-  width: 100%;
-  margin-top: 13px;
-  background: #f5f7f1;
-  color: #4a5d4f;
-  border: 1px solid #e7ebe2;
-  border-radius: 4px;
-  padding: 9px;
-  text-align: left;
-  font-size: 9px;
-}
-.overview-button span {
-  float: right;
-}
-.overview-detail {
-  padding: 10px;
-  background: #f7f8f4;
-  margin-top: 7px;
-  border-radius: 4px;
-}
-.overview-detail strong {
-  font-size: 9px;
-}
-.overview-detail p {
-  font-size: 8px;
-  line-height: 1.6;
-  color: #737d73;
-  margin: 5px 0 0;
-}
-.demo-disclaimer {
-  font-size: 9px;
-  color: #8d948b;
-  margin-top: 15px;
-}
-.demo-disclaimer span {
-  margin-right: 5px;
-}
-/* The simpler preview cards shown by the two secondary navigation items. */
-.secondary-view {
-  padding-top: 16px;
-  min-height: 600px;
-}
-.secondary-view > .eyebrow {
-  margin-bottom: 18px;
-}
-.secondary-view h1 {
-  font-size: 36px;
-}
-.secondary-view .intro-copy {
-  max-width: 640px;
-  margin-bottom: 35px;
-}
-.context-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-.info-card {
-  background: #fff;
-  border: 1px solid #e2e5dd;
-  border-radius: 7px;
-  padding: 22px;
-  min-height: 182px;
-}
-.info-icon {
-  font-size: 24px;
-  color: #82996f;
-}
-.info-card h2 {
-  font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 16px;
-  margin: 13px 0 8px;
-}
-.info-card p {
-  font-size: 11px;
-  line-height: 1.7;
-  color: #778079;
-}
-.coming-pill {
-  font-size: 8px;
-  background: #eff2e9;
-  color: #73836e;
-  padding: 5px 7px;
-  border-radius: 3px;
-}
-.return-button {
-  margin-top: 24px;
-  border: 0;
-  padding: 10px 0;
-  background: none;
-  color: #43624d;
-  font-size: 11px;
-}
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-/* At tablet widths, keep the side navigation while allowing the map to scroll. */
-@media (max-width: 940px) {
-  .sidebar {
-    width: 190px;
-    flex-basis: 190px;
-  }
-  .content {
-    padding: 34px 24px;
-  }
-  .map-and-card {
-    grid-template-columns: minmax(0, 1fr) 210px;
-  }
+/*Information Panel styling*/
   .area-card {
-    padding: 18px 14px;
+    background: rgba(250, 249, 246, 0.88);
+    border: 1px solid #d7d0c9;
+    border-radius: 18px;
+    padding: 22px 28px 18px;
+    min-width: 0;
+    box-shadow: 0 12px 28px rgba(30, 30, 20, 0.04);
   }
-  .layer-tabs button {
-    padding: 8px 7px;
+  .info-panel {
+    max-height: 680px;
+    overflow-y: auto;
+    scrollbar-color: #b8bdb2 transparent;
+    scrollbar-width: thin;
   }
-  .map-svg {
-    min-width: 460px;
+  .selected-water-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
   }
-  .map-frame {
-    overflow: auto;
+  /*selected water system label*/
+  .field-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #66615d;
+    font-weight: 600;
   }
-  .context-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-/* At phone widths, stack navigation, map, and selected-neighborhood details. */
-@media (max-width: 680px) {
-  .app-shell {
-    display: block;
-  }
-  .sidebar {
-    position: relative;
-    top: auto;
-    height: auto;
-    min-height: 0;
-    width: auto;
-    padding: 13px 16px 10px;
-    display: block;
-  }
-  .brand {
-    font-size: 22px;
-  }
-  .brand-drop {
-    font-size: 20px;
-  }
-  .brand-caption,
-  .sidebar-story,
-  .about-link {
-    display: none;
-  }
-  .primary-nav {
+  /*two circles on the right of the information panel for links click*/
+  .system-toolbar {
     display: flex;
     gap: 4px;
-    margin-top: 12px;
-    overflow-x: auto;
   }
-  .nav-link {
-    height: 35px;
-    padding: 0 9px;
-    gap: 5px;
-    white-space: nowrap;
-    font-size: 10px;
-  }
-  .nav-link .icon {
-    font-size: 14px;
-    width: 13px;
-  }
-  .nav-link i {
-    display: none;
-  }
-  .topbar {
-    height: 48px;
-    padding: 0 17px;
-  }
-  .topbar-right {
-    font-size: 9px;
-  }
-  .content {
-    padding: 29px 16px 25px;
-  }
-  .intro h1 {
-    font-size: 30px;
-    letter-spacing: -1.1px;
-  }
-  .mobile-break {
-    display: block;
-  }
-  .intro-copy {
-    font-size: 11px;
-    margin: 11px 0 20px;
-  }
-  .search-box {
-    padding-left: 11px;
-    height: 49px;
-  }
-  .search-icon {
-    font-size: 20px;
-    margin-right: 6px;
-  }
-  .search-box input {
-    font-size: 10px;
-  }
-  .location-button {
-    margin: 0 5px;
-    width: 30px;
-    height: 30px;
-    flex-basis: 30px;
+  .system-action {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #d5cec75f;
+    border-radius: 100%;
+    background: rgba(255, 255, 255, 0);
+    color: #46564f;
     font-size: 18px;
   }
-  .search-submit {
-    height: 36px;
-    padding: 0 10px;
-    font-size: 9px;
+  .header-left {
+    min-width: 0;
   }
-  .search-submit span {
-    margin-left: 6px;
+  .home-address {
+    margin: 6px 0 0;
+    color: #6a726d;
+    font-size: 10px;
   }
-  .search-hints {
-    font-size: 8px;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  .search-hints button {
-    font-size: 8px;
-  }
-  .city-section {
-    margin-top: 32px;
-  }
-  .section-head {
-    display: block;
-  }
-  .title-row {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .section-head h2 {
-    font-size: 16px;
-  }
-  .layer-tabs {
-    width: max-content;
-    margin-top: 13px;
-  }
-  .map-and-card {
+  .panel-tabs {
     display: flex;
-    flex-direction: column;
+    gap: 2px;
+    overflow-x: auto;
+    border-bottom: 1px solid #dbd4ce;
+    margin: 14px 0 12px;
   }
-  .map-frame {
-    min-height: 300px;
-    max-height: 330px;
-  }
-  .map-svg {
-    min-height: 300px;
-  }
-  .map-legend {
-    position: sticky;
-    left: 12px;
-    bottom: 10px;
-    width: max-content;
-  }
-  .area-card {
+  .panel-tabs button {
+    flex: 1 1 0;
+    min-width: 0;
     border: 0;
-    border-top: 1px solid #e1e4dc;
-    padding: 19px 17px;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: #6d736e;
+    font-size: 9px;
+    line-height: 1.2;
+    padding: 8px 2px;
+    white-space: nowrap;
   }
-  .area-heading h3 {
+  .panel-tabs button[aria-selected="true"] {
+    border-bottom-color: #a96a39;
+    color: #2b2d2d;
+    font-weight: 600;
+  }
+  .panel-body {
+    min-width: 0;
+  }
+  .water-system-name {
+    margin: 0;
     font-size: 20px;
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+    color: #2c312f;
+    font-weight: 600;
   }
-  .score-line strong {
-    font-size: 35px;
+  .system-meta {
+    margin: 7px 0 20px;
+    color: #6a726d;
+    font-size: 10.5px;
+    letter-spacing: -0.02em;
   }
-  .card-kicker {
-    font-size: 8px;
+  .water-tab { /* Tab buttons for switching between overview and comparison views.------------------------------ */
+    background: none;
+    border: 0;
+    color: #6d736e;
+    font-size: 11px;
+    padding: 40 0 10px;
+    position: relative;
+    color: #2b2d2d;
+    font-weight: 550;
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid #dbd4ce;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
   }
-  .demo-disclaimer {
-    line-height: 1.6;
+  .water-overview {
+    grid-template-columns: minmax(100px, 0.85fr) minmax(0, 1.15fr);
+    display: grid;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
   }
-  .context-grid {
-    grid-template-columns: 1fr;
+  .score-ring {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  .secondary-view {
-    padding-top: 4px;
+  .score-copy {
+    padding-top: 10px;
+    min-width: 0;
   }
-  .secondary-view h1 {
-    font-size: 30px;
+  .concern-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #e7d5ba;
+    color: #4b4138;
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 10px;
+    font-weight: 600;
   }
-  .secondary-view .intro-copy {
+  .concern-pill::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #a96a39;
+    display: inline-block;
+  }
+  .score-copy p { /* Paragraphs of text shown below the score and concern pill. */
+    font-size: 12px;
+    line-height: 1.4;
+    color: #353d39;
+    margin: 10 10px 10px 30px;
+  }
+  .info-panel .score-copy p {
+    margin: 10px 0;
+  }
+  .avg-bars {
+    display: grid;
+    gap: 15px;
+    margin-top: 12px;
+  }
+  .avg-bar-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 11px;
+    color: #4a504b;
+    font-size: 13px;
+  }
+  .avg-bar-head b {
+    white-space: nowrap;
+  }
+  .avg-bar-head .is-better {
+    color: #4b7a56;
+  }
+  .avg-bar-head .is-worse {
+    color: #a45b3a;
+  }
+  .avg-bar-track {
+    position: relative;
+    height: 9px;
+    overflow: visible;
+    border-radius: 999px;
+    background: #e5e0d9;
+  }
+  .avg-bar-track > i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: #c59050;
+  }
+  .avg-bar:nth-child(2) .avg-bar-track > i {
+    background: #c89243;
+  }
+  .avg-bar-tick {
+    position: absolute;
+    top: -3px;
+    width: 3px;
+    height: 14px;
+    background: #414640;
+  }
+  .water-note { /* Note about the water system, shown below the score and concern pill. */
+    font-size: 11px;
+    line-height: 1.5;
+    color: #767d76;
+    margin: 18px 0 20px;
+  }
+  .water-comparison {
+    margin-top: 20px;
+    padding-top: 10px;
+  }
+  .trend-row + .trend-row {
+    margin-top: 18px;
+  }
+  .trend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #4a504b;
+    font-size: 10px;
+  }
+  .trend-header strong {
+    font-weight: 600;
+    color: #3f4b44;
+  }
+  .trend-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e0d9;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .trend-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: #c59050;
+  }
+  .burden-fill {
+    background: #c89243;
+  }
+  .glance-section { 
+    margin-top: 28px;
+  }
+  .glance-label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6b6965;
+    font-weight: 700;
+  }
+  .glance-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .record-summary {
+    margin-bottom: 18px;
+  }
+  .water-record-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .water-record-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid #e7e2dc;
+    color: #455149;
     font-size: 11px;
   }
-  .info-card {
-    min-height: 0;
-    padding: 18px;
+  .water-record-list li > div {
+    display: grid;
+    gap: 5px;
   }
-}
+  .water-record-list li span,
+  .water-record-list time {
+    color: #777e77;
+    font-size: 10px;
+  }
+  .water-record-list time {
+    flex: 0 0 auto;
+  }
+  .detail-list {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0 0;
+  }
+  .detail-list > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #e7e2dc;
+    padding-bottom: 8px;
+    font-size: 11px;
+  }
+  .detail-list dt {
+    color: #777e77;
+  }
+  .detail-list dd {
+    margin: 0;
+    color: #39463e;
+    text-align: right;
+  }
+  .metric-tile {
+    background: #eef0ea;
+    border: 1px solid #dfe3da;
+    border-radius: 12px;
+    padding: 8px 12px 9px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 50px;
+    gap: 5px;
+  }
+  .metric-tile strong {
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: #2e3836;
+    font-weight: 700;
+  }
+  .metric-tile span {
+    font-size: 10px;
+    color: #5b665f;
+    line-height: 1.4;
+  }
+  .area-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 17px;
+    gap: 8px;
+  }
+  .area-heading h3 {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 21px;
+    letter-spacing: -0.6px;
+    color: #33453a;
+    margin: 0;
+    font-weight: 700;
+  }
+  .system-line {
+    font-size: 9px;
+    color: #858d84;
+    margin: 6px 0 17px;
+  }
+  .system-line strong {
+    color: #455143;
+  }
+  .concern-block {
+    padding-top: 14px;
+  }
+  .concern-title {
+    font-size: 8px;
+    letter-spacing: 0.9px;
+    color: #828980;
+    display: flex;
+    justify-content: space-between;
+  }
+  .concern-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 9px;
+    color: #58655b;
+    margin: 13px 0 7px;
+  }
+  .concern-row > i {
+    width: 6px;
+    height: 6px;
+    background: #c5aa64;
+    border-radius: 50%;
+    flex: 0 0 6px;
+  }
+  .review-badge {
+    margin-left: auto;
+    background: #f4f0e3;
+    color: #8e7c51;
+    padding: 4px 6px;
+    border-radius: 2px;
+    font-size: 8px;
+  }
+  .concern-block > p {
+    font-size: 8px;
+    line-height: 1.6;
+    color: #9a9f97;
+    margin: 0;
+  }
+  .overview-button {
+    width: 100%;
+    margin-top: 13px;
+    background: #f5f7f1;
+    color: #4a5d4f;
+    border: 1px solid #e7ebe2;
+    border-radius: 4px;
+    padding: 9px;
+    text-align: left;
+    font-size: 9px;
+  }
+  .overview-button span {
+    float: right;
+  }
+  .overview-detail {
+    padding: 10px;
+    background: #f7f8f4;
+    margin-top: 7px;
+    border-radius: 4px;
+  }
+  .overview-detail strong {
+    font-size: 9px;
+  }
+  .overview-detail p {
+    font-size: 8px;
+    line-height: 1.6;
+    color: #737d73;
+    margin: 5px 0 0;
+  }
+  .demo-disclaimer {
+    font-size: 9px;
+    color: #8d948b;
+    margin-top: 15px;
+  }
+  .demo-disclaimer span {
+    margin-right: 5px;
+  }
+
+  /* The simpler preview cards shown by the two secondary navigation items. */
+  .secondary-view {
+    padding-top: 16px;
+    min-height: 600px;
+  }
+  .secondary-view > .eyebrow {
+    margin-bottom: 18px;
+  }
+  .secondary-view h1 {
+    font-size: 36px;
+  }
+  .secondary-view .intro-copy {
+    max-width: 640px;
+    margin-bottom: 35px;
+  }
+  .context-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .info-card {
+    background: #fff;
+    border: 1px solid #e2e5dd;
+    border-radius: 7px;
+    padding: 22px;
+    min-height: 182px;
+  }
+  .info-icon {
+    font-size: 24px;
+    color: #82996f;
+  }
+  .info-card h2 {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    margin: 13px 0 8px;
+  }
+  .info-card p {
+    font-size: 11px;
+    line-height: 1.7;
+    color: #778079;
+  }
+  .coming-pill {
+    font-size: 8px;
+    background: #eff2e9;
+    color: #73836e;
+    padding: 5px 7px;
+    border-radius: 3px;
+  }
+  .return-button {
+    margin-top: 24px;
+    border: 0;
+    padding: 10px 0;
+    background: none;
+    color: #43624d;
+    font-size: 11px;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
 /* Respect a device setting that asks interfaces to reduce animation. */
 @media (prefers-reduced-motion: reduce) {
   *,

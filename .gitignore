@@ -42,3 +42,5 @@ water-api/data
 CLAUDE.md
 **/node_modules
 **/.vite/deps
+# macOS folder metadata
+.DS_Store

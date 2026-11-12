@@ -2,29 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import "./AddressSearch.css";
 
 const ESRI = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-
 // xmin,ymin,xmax,ymax (LA County box): only narrows suggestions, backend is the real check
 const LA_BOUNDS = "-118.9448,33.7036,-117.6463,34.8233";
 
 // Spring endpoint: receives { address }, geocodes with Census, runs the polygon check
-const BACKEND_URL = "http://localhost:8080/example";
+const BACKEND_URL = "http://localhost:8080/api/address";
 
 // Shape of one Esri suggestion (text + magicKey, no coordinates yet)
 type Suggestion = { text: string; magicKey: string };
 
-// Shape of the backend response
+// Mirrors the backend's AddressLookupResponse.
+// Everything but inServiceArea is null when the geocoder can't place the address.
 type CheckResult = {
-  matched: boolean;
+  matchedAddress: string | null;
+  lat: number | null;
+  lng: number | null;
+  pwsid: string | null; // null when the point is outside every system
   inServiceArea: boolean;
-  matchedAddress: string;
-  lat: number;
-  lon: number;
-  pwsid: string | null;
 };
 
-// The parent passes a function in; we call it with coordinates once the backend confirms the address.
+// The parent passes a function in; we call it once the backend confirms the address.
 type AddressSearchProps = {
-  onLocate: (lat: number, lon: number) => void;
+  // address is the geocoder's matched address; the info panel shows it as "Serves ..."
+  onLocate: (lat: number, lng: number, pwsid: string | null, address: string) => void;
 };
 
 // Esri suggestion text: "1572 Bloomfield Ave, Lakewood, CA, 90712, USA"
@@ -122,13 +122,18 @@ export default function AddressSearch({ onLocate }: AddressSearchProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address }),
     })
-      .then((res) => res.json())
-      .then((data: CheckResult) => {
-        if (!data.matched) {
+      .then(async (res) => {
+        const body = await res.json();
+        // 400 / 429 / 504 come back from the backend with a message
+        if (!res.ok) throw new Error(body?.message ?? `Request failed (${res.status})`);
+        return body as CheckResult;
+      })
+      .then((data) => {
+        if (data.matchedAddress == null || data.lat == null || data.lng == null) {
           setStatus("Could not verify that address.");
           return;
         }
-        onLocate(data.lat, data.lon);
+        onLocate(data.lat, data.lng, data.pwsid, data.matchedAddress);
         setStatus(
           data.inServiceArea
             ? `In service area: ${data.matchedAddress}`
@@ -137,7 +142,7 @@ export default function AddressSearch({ onLocate }: AddressSearchProps) {
       })
       .catch((err) => {
         console.error("Backend error:", err);
-        setStatus("Could not reach the server.");
+        setStatus(err instanceof TypeError ? "Could not reach the server." : err.message);
       });
   }
 
@@ -195,7 +200,7 @@ export default function AddressSearch({ onLocate }: AddressSearchProps) {
        const [location, setLocation] = useState<[number, number] | null>(null);
 
   3. Wherever you want the search box:
-       <AddressSearch onLocate={(lat, lon) => setLocation([lat, lon])} />
+       <AddressSearch onLocate={(lat, lng) => setLocation([lat, lng])} />
 
   4. Pass the location to the map:
        <MapView marker={location} />
