@@ -14,7 +14,9 @@ public record GeoCodeResponse(Result result) {
     public record AddressMatch(String matchedAddress, Coordinates coordinates,
                                AddressComponents addressComponents) {}
 
+    //x is longitude, y is latitude
     public record Coordinates(double x, double y) {}
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record AddressComponents(String zip) {}
 }

@@ -1,36 +1,47 @@
 import { useState } from "react";
 import MapView from "./MapView";
 import AddressSearch from "./AddressSearch";
-import SystemInfoPanel from "./SystemInfoPanel";
+import InfoPanel from "./InfoPanel";
+import Leaderboard from "./Leaderboard";
 
 // This is a TypeScript "union": activeNav can only be one of these three exact strings.
 type Page = "explore" | "context" | "resources";
-
 // The [] means this is a list. Each item must have an allowed page id, a label, and an icon glyph.
-const navItems: { id: Page; label: string; glyph: string }[] = [
-  { id: "explore", label: "Explore the water", glyph: "⌖" },
-  { id: "context", label: "Environmental context", glyph: "◷" },
-  { id: "resources", label: "Resources & action", glyph: "▤" },
+const navItems: { id: Page; label: string; icon: string }[] = [
+  { id: "explore", label: "Explore the water", icon: "map" },
+  { id: "context", label: "Environmental context", icon: "history" },
+  { id: "resources", label: "Resources & action", icon: "resource" },
 ];
 
 // This small React component avoids repeating the same decorative-icon markup.
 // The { children: string } part is a TypeScript type for the text passed between its tags.
-function Icon({ children }: { children: string }) {
-  return (
-    <span className="icon" aria-hidden="true">
-      {children}
-    </span>
-  );
+function Icon({ name, size = 25 }: { name: string; size?: number }) {
+  const paths: Record<string, React.ReactNode> = {
+    drop: <path d="M12 3C9 8 5 11 5 15a7 7 0 0 0 14 0c0-4-4-7-7-12Z" />,
+    map: <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/></>,
+    search: <><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,
+    arrow: <path d="M5 12h14m-6-6 6 6-6 6"/>,
+    pin: <><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 0 1 14 0Z"/><circle cx="12" cy="10" r="2"/></>,
+    history: <><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/></>,
+    resource: <><path d="M4 4h7a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4Zm16 0h-3a3 3 0 0 0-3 3M20 4v15h-2"/></>,
+    info: <><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></>,
+    globe: <><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></>,
+    locate: <><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></>,
+    civic: <><path d="M3 21h18M5 18h14M6 9v9M10 9v9M14 9v9M18 9v9M3 6l9-4 9 4Z"/></>,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></>,
+  }
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name] || paths.info}</svg>
 }
 
 function App() {
   // useState returns a current value and a setter: [value, updateFunction].
   // React recalculates this component and updates the screen when a setter is called.
   const [activeNav, setActiveNav] = useState<Page>("explore");
-  // App shares one selection: MapView changes it, and SystemInfoPanel reads it.
-  const [selectedSystemId, setSelectedSystemId] = useState("CA1910067");
   // Shared between AddressSearch (writes it) and MapView (reads it), so it lives here in the parent.
   const [location, setLocation] = useState<[number, number] | null>(null);
+  // One selection connects address results, polygons, badges, the panel, and the leaderboard.
+  const [selectedPwsid, setSelectedPwsid] = useState<string | null>("CA1910067");
+  const [home, setHome] = useState<{ pwsid: string; address: string } | null>(null);
 
   // JSX is HTML-like page markup. Curly braces insert JavaScript values and expressions.
   return (
@@ -40,9 +51,9 @@ function App() {
           className="brand"
           href="#top"
           onClick={() => setActiveNav("explore")}
-          aria-label="wellwater home"
+          aria-label="Wellwater Home"
         >
-          <span className="brand-drop">◉</span>
+          <span className="brand-drop"><Icon name="drop" size={29}/></span>
           <span>
             wellwater<span className="brand-period">.</span>
           </span>
@@ -57,7 +68,7 @@ function App() {
               onClick={() => setActiveNav(item.id)}
               aria-current={activeNav === item.id ? "page" : undefined}
             >
-              <Icon>{item.glyph}</Icon>
+               <Icon name={item.icon}/>
               <span>{item.label}</span>
               {activeNav === item.id && <i aria-hidden="true" />}
             </button>
@@ -78,15 +89,16 @@ function App() {
           </small>
         </div>
         <button className="about-link" onClick={() => setActiveNav("context")}>
-          <Icon>ⓘ</Icon> About the data <span>↗</span>
+          <Icon name="notice"/> About the data <span>↗</span>
         </button>
       </aside>
 
       <main id="top" className="main-panel">
+        {/*Dashboard Header */}
         <header className="topbar">
           <span className="eyebrow">THE WATER WE SHARE</span>
           <div className="topbar-right">
-            <span className="location-pin">⌖</span> Los Angeles, CA{" "}
+            <span className="location-pin"><Icon name="pin" size={17}/></span> Los Angeles, CA{" "}
             <span className="top-divider" />
             <span className="demo-pill">Demo edition</span>
           </div>
@@ -106,7 +118,18 @@ function App() {
                   and the stories behind the numbers.
                 </p>
                 {/* Address autocomplete lives in AddressSearch.tsx; it reports coordinates up to App. */}
-                <AddressSearch onLocate={(lat, lon) => setLocation([lat, lon])} />
+                <div  role="search">
+                  <AddressSearch
+                    onLocate={(lat, lon, pwsid, address) => {
+                      setLocation([lat, lon]);
+                      setSelectedPwsid(pwsid);
+                      setHome(pwsid ? { pwsid, address } : null);
+                    }}
+                  />
+                  <span className="search-icon" aria-hidden="true" >
+                    {/*<Icon name="search" size={20}/>*/}
+                  </span>
+                </div>
               </section>
 
               <section className="city-section" aria-labelledby="city-title">
@@ -114,30 +137,44 @@ function App() {
                   <div>
                     <div className="title-row">
                       <h2 id="city-title">The citywide picture</h2>
+                      <span className="count-pill">11 demo neighborhoods</span>
                     </div>
                     <p>Different water stories. A shared landscape.</p>
                   </div>
                 </div>
 
+    {/*The map and the neighborhood card are side by side on desktop*/}
+
                 <div className="map-and-card">
                   {/* The Leaflet map lives in MapView.tsx. */}
                   <div className="map-frame">
+                    {/* Clicking a polygon opens its info panel and highlights its leaderboard row */}
                     <MapView
                       marker={location}
-                      selectedSystemId={selectedSystemId}
-                      onSelectSystem={setSelectedSystemId}
+                      selectedSystemId={selectedPwsid}
+                      onSelectSystem={setSelectedPwsid}
                     />
                   </div>
-
-                  {/* A new key resets the old details and overview when selection changes. */}
-                  <SystemInfoPanel key={selectedSystemId} systemId={selectedSystemId} />
+                  {selectedPwsid && (
+                    <InfoPanel
+                      pwsid={selectedPwsid}
+                      home={home}
+                      onSelect={setSelectedPwsid}
+                      onClose={() => setSelectedPwsid(null)}
+                    />
+                  )}
                 </div>
+
+                {/* Highlights the same system the info panel shows */}
+                <Leaderboard selectedPwsid={selectedPwsid} />
               </section>
               <p className="demo-disclaimer">
-                <span>ⓘ</span> Independent community tool · Scores summarize public
-                datasets and are not measurements at your tap.
+                <span>ⓘ</span> Independent community tool · Demo values are
+                illustrative and are not water quality measurements.
               </p>
+
             </>
+            // The other two nav pages are static content for this prototype.
           ) : activeNav === "context" ? (
             <section className="secondary-view">
               <p className="eyebrow">PLACE, HISTORY, AND WATER</p>
@@ -151,22 +188,27 @@ function App() {
                 {[
                   {
                     title: "Industrial history",
-                    text: "Explore how land use and historical industry may shape questions residents ask about nearby water.",
+                    text: "See how 1930s redlining maps graded LA neighborhoods, and how those decisions shaped where industry and pollution ended up.",
+                    href:"https://dsl.richmond.edu/panorama/redlining/"
                   },
                   {
                     title: "Environmental sites",
-                    text: "A future version could connect verified public site records with neighborhood context.",
+                    text: "Find Superfund and other cleanup sites near you, including contaminated groundwater that some water systems draw from.",
+                    href: "https://www.epa.gov/superfund/search-superfund-sites-where-you-live"
                   },
                   {
                     title: "Community perspective",
-                    text: "Pair public records with local organizations and community knowledge.",
+                    text: "See how your neighborhood's pollution burden compares across California with CalEnviroScreen.",
+                    href: "https://oehha.ca.gov/calenviroscreen/about-calenviroscreen"
                   },
                 ].map((item) => (
                   <article className="info-card" key={item.title}>
                     <span className="info-icon">⌁</span>
                     <h2>{item.title}</h2>
                     <p>{item.text}</p>
-                    <span className="coming-pill">Concept preview</span>
+                    <a className="coming-pill" href={item.href} target="_blank" rel="noreferrer">
+                     Learn more ↗
+                    </a>
                   </article>
                 ))}
               </div>
@@ -190,25 +232,32 @@ function App() {
                   {
                     title: "Request water testing",
                     text: "Learn which local agency can answer questions about testing and sampling.",
+                    href: "https://www.waterboards.ca.gov/drinking_water/certlic/labs/"
                   },
                   {
                     title: "Understand your report",
                     text: "Find plain-language help for reading a water system quality report.",
+                    href: "https://www.epa.gov/ccr/understanding-your-annual-water-quality-report"
                   },
                   {
                     title: "Connect with local groups",
                     text: "Discover environmental justice organizations and neighborhood advocates.",
+                    href: "https://ceja.org/"
                   },
                   {
                     title: "Ask a question",
                     text: "Prepare useful questions for your water provider or local representative.",
+                    href: "https://nationalwaterservice.com/7-questions-to-ask-your-local-water-company/"
+
                   },
                 ].map((item) => (
                   <article className="info-card" key={item.title}>
                     <span className="info-icon">↗</span>
                     <h2>{item.title}</h2>
                     <p>{item.text}</p>
-                    <span className="coming-pill">Resource preview</span>
+                    <a className="coming-pill" href={item.href} target="_blank" rel="noreferrer">
+                         Open resource ↗
+                    </a>
                   </article>
                 ))}
               </div>

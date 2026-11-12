@@ -1,15 +1,40 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { Control, DomEvent, DomUtil, divIcon, latLngBounds } from "leaflet";
 import SystemMapLayers, { type SystemMap } from "./SystemMapLayers";
 import "leaflet/dist/leaflet.css";
+import "./MapView.css";
+import { NO_SCORE_COLOR, scoreGradient } from "./scoreColor";
+import { PIN_COLOR, pinSvg } from "./pinIcon";
 
-// Props are inputs from App. onSelectSystem is a function the map calls to report a selection.
+// Props are inputs from App. A ? marks an optional input; null means no system is selected.
 type MapViewProps = {
   className?: string;
   marker?: [number, number] | null; // [lat, lon] from the address search
-  selectedSystemId: string;
-  onSelectSystem: (systemId: string) => void;
+  selectedSystemId: string | null;
+  onSelectSystem: (pwsid: string) => void; // reports polygon or badge selection to App
 };
+
+// Where the map starts, and where the recenter button brings it back to.
+// This starting view is also the furthest out a user can zoom or pan (see LockToStartView).
+// The center of the 11 systems' bounding box (lng -118.668 to -118.066, lat 33.704 to 34.337),
+// so the polygons sit in the middle of the map
+const START_CENTER: [number, number] = [34.0205, -118.3669];
+// Tiles only exist at whole zoom levels; Leaflet uses the nearest one and scales it. At 9.25 it stretched
+// zoom-9 tiles (blurry); at 9.5 it uses zoom-10 tiles shrunk to ~71%, which stays sharp.
+const START_ZOOM = 9.5;
+
+// The address pin. A divIcon is plain HTML on Leaflet's marker layer, which is moved but never scaled
+// during zoom animations, so the pin stays the same size and sharp at every zoom (a CircleMarker sits on
+// the polygons' SVG layer, which is stretched mid-zoom). Anchored at the tip, so the tip marks the address.
+const PIN_WIDTH = 24;
+const PIN_HEIGHT = 34;
+const addressPin = divIcon({
+  html: pinSvg(PIN_WIDTH, PIN_HEIGHT),
+  className: "address-pin", // replaces Leaflet's default white box
+  iconSize: [PIN_WIDTH, PIN_HEIGHT],
+  iconAnchor: [PIN_WIDTH / 2, PIN_HEIGHT],
+});
 
 // Helper component: useMap() only works INSIDE MapContainer, so this lives in there.
 // It renders nothing; it just moves the map whenever position changes.
@@ -21,39 +46,117 @@ function FlyTo({ position }: { position: [number, number] }) {
   return null;
 }
 
+// Makes the starting view the limit: no zooming out past START_ZOOM, and no panning outside the area that
+// view shows at the map's current pixel size. Once zoomed in, you can pan anywhere inside that area.
+// The area depends on the map's size, so it's worked out on load and again on every resize.
+// Leaflet's own zoom control greys out its "−" button at the minimum zoom.
+function LockToStartView() {
+  const map = useMap();
+  useEffect(() => {
+    const update = () => {
+      // The start view's corners: half the map's size in pixels either side of the start center
+      const center = map.project(START_CENTER, START_ZOOM);
+      const half = map.getSize().divideBy(2);
+      const startView = latLngBounds(
+        map.unproject(center.subtract(half), START_ZOOM),
+        map.unproject(center.add(half), START_ZOOM),
+      );
+      map.setMinZoom(START_ZOOM);
+      map.setMaxBounds(startView);
+    };
+    update();
+    map.on("resize", update);
+    return () => {
+      map.off("resize", update);
+    };
+  }, [map]);
+  return null;
+}
+
+// Crosshair button under the + / − buttons that brings the map back to its starting view.
+// Built as a real Leaflet control so it lines up and looks like the zoom buttons above it.
+function RecenterControl() {
+  const map = useMap();
+  useEffect(() => {
+    const control = new Control({ position: "topleft" });
+    control.onAdd = () => {
+      const bar = DomUtil.create("div", "leaflet-bar recenter-control");
+      const button = DomUtil.create("a", "", bar) as HTMLAnchorElement;
+      button.href = "#";
+      button.title = "Recenter map";
+      button.setAttribute("role", "button");
+      button.setAttribute("aria-label", "Recenter map");
+      button.innerHTML =
+        '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" ' +
+        'stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5" ' +
+        'fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>';
+      // Keep clicks on the button from also counting as clicks (or drags) on the map underneath
+      DomEvent.disableClickPropagation(bar);
+      DomEvent.on(button, "click", (e) => {
+        DomEvent.preventDefault(e);
+        map.flyTo(START_CENTER, START_ZOOM);
+      });
+      return bar;
+    };
+    // Added after MapContainer's zoom control, so it stacks right below it
+    control.addTo(map);
+    return () => {
+      control.remove();
+    };
+  }, [map]);
+  return null;
+}
+
+// Bottom left: what the polygon colors mean. The bar is built from the same color stops as the polygons.
+function MapLegend() {
+  return (
+    <div className="map-legend-box" aria-label="Map legend">
+      <strong>Water score</strong>
+      <span className="legend-bar" style={{ background: scoreGradient() }} />
+      <div className="legend-ends">
+        <span>0 · Higher concern</span>
+        <span>100 · Lower concern</span>
+      </div>
+      <div className="legend-extra">
+        <span>
+          <i className="legend-swatch" style={{ background: NO_SCORE_COLOR }} /> No score
+        </span>
+        <span>
+          <i className="legend-swatch legend-pin" style={{ background: PIN_COLOR }} /> Your address
+        </span>
+      </div>
+      <small>CalEnviroScreen 5.0 (July 2026)</small>
+    </div>
+  );
+}
+
 export default function MapView({ className, marker, selectedSystemId, onSelectSystem }: MapViewProps) {
-  // The generic <SystemMap | null> tells TypeScript what data can hold.
+  // data is either GeoJSON from the backend or null before the fetch finishes.
   const [data, setData] = useState<SystemMap | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
-  // Fetch boundaries once, or on retry. Selecting a system does not download the map again.
+  // Selection reuses this response; only a retry downloads the boundaries again.
   useEffect(() => {
     const controller = new AbortController();
     let current = true;
-    setLoading(true);
-    setError(false);
-
-    async function load() {
-      try {
-        const response = await fetch("http://localhost:8080/api/systems/map", {
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("Map data unavailable");
-        const result: SystemMap = await response.json();
-        if (result.type !== "FeatureCollection" || !Array.isArray(result.features)) {
+    setFailed(false);
+    fetch("http://localhost:8080/api/systems/map", { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Backend responded ${res.status}`);
+        return res.json();
+      })
+      .then((json: SystemMap) => {
+        if (json.type !== "FeatureCollection" || !Array.isArray(json.features)) {
           throw new Error("Unexpected map data");
         }
-        if (current) setData(result);
-      } catch {
-        if (current) setError(true);
-      } finally {
-        if (current) setLoading(false);
-      }
-    }
-
-    void load();
+        if (current) setData(json);
+      })
+      .catch((err) => {
+        if (!current) return;
+        console.error("Map data fetch failed:", err);
+        setFailed(true);
+      });
     return () => {
       current = false;
       controller.abort();
@@ -61,27 +164,22 @@ export default function MapView({ className, marker, selectedSystemId, onSelectS
   }, [attempt]);
 
   return (
-    <>
-      {loading && <p className="map-status" role="status">Loading water system boundaries…</p>}
-      {error && (
-        <div className="map-status">
-          <p role="alert">Water system boundaries couldn’t be loaded.</p>
-          <button onClick={() => setAttempt((value) => value + 1)}>Try loading the map again</button>
-        </div>
-      )}
-      {!loading && !error && data?.features.length === 0 && (
-        <p className="map-status" role="status">No water system boundaries are available.</p>
-      )}
+    // The wrapper lets the legend sit on top of the map without being part of Leaflet
+    <div className="map-view">
       <MapContainer
-        className={className ? `water-map ${className}` : "water-map"}
-        center={[34.05, -118.24]}
-        zoom={9}
+        className={className}
+        center={START_CENTER}
+        zoom={START_ZOOM}
+        zoomSnap={0.25} // allow quarter zoom levels, so START_ZOOM can sit between Leaflet's whole steps
+        maxBoundsViscosity={1} // 1 = a hard edge, not a rubber band (the bounds are set by LockToStartView)
+        style={{ height: "100%", width: "100%" }} // fills .map-frame, which the layout sizes
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        {/* The same map response supplies boundaries, badge scores, and their positions. */}
+        <LockToStartView />
+        <RecenterControl />
         {data && (
           <SystemMapLayers
             data={data}
@@ -89,14 +187,32 @@ export default function MapView({ className, marker, selectedSystemId, onSelectS
             onSelectSystem={onSelectSystem}
           />
         )}
-        {/* CircleMarker avoids Leaflet's default pin image, which breaks with Vite bundling. */}
+        {/* Our own divIcon pin, not Leaflet's default pin image (that one breaks with Vite bundling). */}
         {marker && (
           <>
-            <CircleMarker center={marker} radius={8} pathOptions={{ color: "#111", fillColor: "#4a7dff", fillOpacity: 1 }} />
+            <Marker position={marker} icon={addressPin} keyboard={false} />
             <FlyTo position={marker} />
           </>
         )}
       </MapContainer>
-    </>
+      <MapLegend />
+      {/* Centered over the map until the water system shapes arrive (the base map shows underneath) */}
+      {!data && (
+        <div className="map-loading" role="status">
+          {failed ? (
+            <>
+              <span role="alert">Couldn't load the water systems.</span>
+              <button type="button" onClick={() => setAttempt((value) => value + 1)}>Retry</button>
+            </>
+          ) : (
+            <>
+              <span className="map-spinner" aria-hidden="true" />
+              <span>Map is loading…</span>
+            </>
+          )}
+        </div>
+      )}
+      {data?.features.length === 0 && <div className="map-loading" role="status">No water systems are available.</div>}
+    </div>
   );
 }

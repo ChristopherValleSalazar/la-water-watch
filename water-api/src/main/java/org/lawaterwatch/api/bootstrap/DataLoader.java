@@ -11,6 +11,7 @@ import org.lawaterwatch.api.repository.DataMetaRepository;
 import org.lawaterwatch.api.repository.ViolationRepository;
 import org.lawaterwatch.api.repository.WaterSystemRepository;
 import org.lawaterwatch.api.service.GeoJsonGeometry;
+import org.lawaterwatch.api.service.MapResponseCache;
 import org.lawaterwatch.api.service.SystemGeometryCache;
 import org.lawaterwatch.api.service.SystemScorer;
 import org.lawaterwatch.api.service.TractAssigner;
@@ -51,6 +52,7 @@ public class DataLoader implements ApplicationRunner {
     private final ViolationRepository violationRepository;
     private final DataMetaRepository dataMetaRepository;
     private final SystemGeometryCache geometryCache;
+    private final MapResponseCache mapResponseCache;
     private final ObjectMapper objectMapper;
 
     public DataLoader(@Value("${app.data.load-on-startup}") boolean loadOnStartup,
@@ -64,6 +66,7 @@ public class DataLoader implements ApplicationRunner {
                       ViolationRepository violationRepository,
                       DataMetaRepository dataMetaRepository,
                       SystemGeometryCache geometryCache,
+                      MapResponseCache mapResponseCache,
                       ObjectMapper objectMapper) {
         this.loadOnStartup = loadOnStartup;
         this.forceRefresh = forceRefresh;
@@ -76,6 +79,7 @@ public class DataLoader implements ApplicationRunner {
         this.violationRepository = violationRepository;
         this.dataMetaRepository = dataMetaRepository;
         this.geometryCache = geometryCache;
+        this.mapResponseCache = mapResponseCache;
         this.objectMapper = objectMapper;
     }
 
@@ -96,6 +100,7 @@ public class DataLoader implements ApplicationRunner {
         //Always from the database, so it matches what the endpoints serve whichever branch ran
         List<WaterSystem> systems = waterSystemRepository.findAll();
         geometryCache.rebuild(systems);
+        mapResponseCache.rebuild();
         logSummary(systems);
     }
 

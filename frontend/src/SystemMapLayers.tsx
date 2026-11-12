@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GeoJSON, Marker, useMap, useMapEvents } from "react-leaflet";
 import { divIcon, tooltip, type LatLngExpression, type Marker as LeafletMarker, type Point } from "leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
+import { scoreColor } from "./scoreColor";
 
 // These fields come from /api/systems/map. Both polygons and badges use the same pwsid.
 type SystemProperties = {
@@ -15,7 +16,7 @@ type SystemFeature = Feature<Geometry, SystemProperties>;
 export type SystemMap = FeatureCollection<Geometry, SystemProperties>;
 
 type SelectionProps = {
-  selectedSystemId: string;
+  selectedSystemId: string | null;
   onSelectSystem: (systemId: string) => void;
 };
 type HoverProps = {
@@ -31,15 +32,6 @@ type SystemRegionProps = HoverProps & {
   onSelectSystem: (systemId: string) => void;
 };
 
-const palette = ["#e63946", "#2a9d8f", "#e9c46a", "#457b9d", "#f4a261", "#8338ec", "#06d6a0"];
-
-function regionColor(name: string) {
-  // A stable name-to-color mapping keeps badges and regions in the same palette.
-  let hash = 0;
-  for (const character of name) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  return palette[hash % palette.length];
-}
-
 // This type guard checks coordinates and tells TypeScript they are numbers inside the guarded block.
 function hasLabel(system: SystemProperties): system is SystemProperties & { labelLat: number; labelLng: number } {
   return system.labelLat != null && system.labelLng != null
@@ -51,7 +43,8 @@ function SystemRegion({
   feature, selected, badgeSize, showBadge, onSelectSystem, showName, hideName,
 }: SystemRegionProps) {
   const system = feature.properties;
-  const color = regionColor(system.name);
+  // Share main's score palette with the legend, panel, and leaderboard.
+  const color = scoreColor(system.waterScore);
   const markerRef = useRef<LeafletMarker>(null);
 
   // Leaflet displays this native button. textContent safely inserts API values as text.

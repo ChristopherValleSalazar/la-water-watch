@@ -1,0 +1,43 @@
+/* Container sizing and centering context */
+.circular-score-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Rotate the SVG so progress starts from the top (12 o'clock position) */
+.circular-score-svg {
+  transform: rotate(-90deg);
+  display: block;
+}
+
+/* Background rim circle track */
+.circular-score-track {
+  stroke: #e5e7eb; /* Light gray equivalent to gray-200 */
+}
+
+/* Dynamic scoring circle track with animation transition */
+.circular-score-progress {
+  stroke: #1d991bd4; /* Blue equivalent to blue-500 */
+  transition: stroke-dashoffset 0.5s ease-out, 
+  stroke 0.5s ease-out;
+}
+
+/* Perfect alignment for the text block exactly in the center */
+.circular-score-text-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none; /* Allow clicks to pass through to the SVG */
+}
+.circular-score-number {
+  font-size: 4.2rem;
+  font-weight: 600;
+  color: #1f2937; /* Dark gray equivalent to gray-800 */
+  font-family: sans-serif, Arial, Helvetica, sans-serif;
+  line-height: 1;
+}

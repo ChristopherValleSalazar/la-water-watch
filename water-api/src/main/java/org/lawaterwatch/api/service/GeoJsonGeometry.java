@@ -10,6 +10,10 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.util.GeometryFixer;
 import tools.jackson.databind.JsonNode;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.regex.Pattern;
+
 //Turns a GeoJSON Polygon or MultiPolygon into a JTS geometry, x = lng, y = lat
 public final class GeoJsonGeometry {
 
@@ -21,6 +25,20 @@ public final class GeoJsonGeometry {
     //Same factory as parsed shapes, note the order: x = lng, y = lat
     public static Point point(double lng, double lat) {
         return FACTORY.createPoint(new Coordinate(lng, lat));
+    }
+
+    //Source data has 14 decimals (sub-nanometer), 5 decimals is ~1 m which is finer than the map can draw
+    //Halves the map response; only for display, the address lookup keeps the full precision geometry
+    private static final Pattern LONG_DECIMAL = Pattern.compile("-?\\d+\\.\\d{6,}");
+
+    public static String roundCoordinates(String geoJson) {
+        if (geoJson == null) {
+            return null;
+        }
+        return LONG_DECIMAL.matcher(geoJson).replaceAll(match -> new BigDecimal(match.group())
+                .setScale(5, RoundingMode.HALF_UP)
+                .stripTrailingZeros()
+                .toPlainString());
     }
 
     public static Geometry parse(JsonNode geometry) {

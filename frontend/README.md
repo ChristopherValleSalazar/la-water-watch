@@ -1,23 +1,27 @@
-# LA Water Watch frontend mockup
+# LA Water Watch frontend
 
-This folder contains an early React frontend based on the team's Figma design. The Leaflet map loads water-system boundaries from the Java backend, and the side panel defaults to LADWP (`CA1910067`) using real backend records. Other areas of the experience remain prototypes.
+This React frontend connects the team's Figma design to the Java backend. The Leaflet map loads water-system boundaries and scores, and the side panel defaults to LADWP (`CA1910067`) using backend records. The address field starts empty.
 
 ## What you can try
 
-- Pan and zoom the water-system boundary map.
+- Pan and zoom the water-system boundary map, use its score legend, and return to the starting view with the recenter control. The starting view also limits how far out the map can zoom or pan.
 - View LADWP's details on initial load, then click a water-system polygon or numbered badge to show that system's name, water score, population served, and service connections.
 - Read each badge's water score; its border matches the region's color. Zoom in to separate nearby badges. The selected badge stays visible and has a stronger border.
 - Hover over a polygon or badge to see the system name in one shared tooltip. Hovering does not change the selected panel.
 - Identify the selected system by its thicker outline, which matches the region's color. Disconnected pieces of the same system are selected together.
-- Open **View water overview** for environmental indicators and violation history.
-- Use **Try again** if the panel cannot load its data.
+- Explore the panel's **Overview**, **Water record**, and **People & place** tabs for scores, environmental indicators, violations, population, and connections.
+- Use the panel's retry control if its data cannot load.
+- Type an address, choose a suggestion, and see the matching water system, address pin, and panel. For a manual check, try `200 N Spring St, Los Angeles, CA 90012`; it is an example, not a prefilled address.
+- Compare systems in the leaderboard; its selected row follows the same selection as the map and panel.
 - Switch between Explore, Environmental context, and Resources & action.
 - Resize the browser to see the compact layout.
-- Use Tab to focus a score badge and show its name; press Enter or Space to select it. The overview control also supports the keyboard.
+- Use Tab to focus a score badge and show its name; press Enter or Space to select it.
 
-The water score comes from the backend's CalEnviroScreen calculation, not a direct tap-water measurement. Missing values display as “No data” or “—”; zero is a valid score. Unresolved contaminant names display their codes. The panel no longer uses the sample Silver Lake score, ZIP, concern, or comparison.
+The water score comes from the backend's CalEnviroScreen calculation, not a direct tap-water measurement. Missing values display as “No data” or “—”; zero is a valid score. Map regions, badges, and panel scores use the shared color scale in `src/scoreColor.ts`.
 
-The former map-layer switch has been removed. Polygon and badge clicks use the same system-selection function. Badges use scores and interior label coordinates from the existing map response; a missing score displays “—”, and a missing position omits the badge while leaving polygon selection available. Address suggestions call ArcGIS, but selecting an address still calls an unfinished backend route. The resources and context cards remain placeholders.
+The former map-layer switch has been removed. Polygon and badge clicks use the same system-selection function. Badges use scores and interior label coordinates from the existing map response; a missing score displays “—”, and a missing position omits the badge while leaving polygon selection available. Address suggestions come from ArcGIS. Selecting a suggestion sends its address to `POST /api/address`; the backend geocodes it with Census and checks which water-system polygon covers the returned coordinates.
+
+Check the displayed matched address: Census can return an approximate or different address. During verification, the `200 N Spring St` example matched `200 S SPRING ST`; those returned coordinates fall in LADWP's service area.
 
 ## Tools used
 
@@ -26,7 +30,7 @@ The former map-layer switch has been removed. Polygon and badge clicks use the s
 | **HTML**       | Provides the browser document and the root element where React displays the app.                                                                                                         |
 | **CSS**        | Controls colors, spacing, responsive layout, map appearance, and keyboard focus styles.                                                                                                  |
 | **JavaScript** | Runs the interaction logic in the browser.                                                                                                                                               |
-| **TypeScript** | JavaScript with type checks while developing. Types help catch mistakes such as leaving a required field out of a neighborhood record. The browser runs the generated JavaScript.        |
+| **TypeScript** | JavaScript with type checks while developing. Types help catch mistakes such as leaving a required field out of a water-system record. The browser runs the generated JavaScript.        |
 | **React**      | A UI library (rather than a complete framework) for making the page from reusable pieces and redrawing it when its state changes. The main page is the `App` component in `src/App.tsx`. |
 | **Vite**       | Starts the local development server with fast refresh and makes the static files for a production build.                                                                                 |
 | **Node.js**    | Runs development tools on your computer. Visitors do not need Node.js to view a deployed static site.                                                                                    |
@@ -102,7 +106,7 @@ From the `frontend` folder, run:
 pnpm dev
 ```
 
-Leave that terminal open and visit **http://127.0.0.1:3000** in your browser. Use this exact address because it is the frontend origin allowed by the backend. Saving a source-file edit automatically updates the preview. Press **Ctrl+C** in the terminal to stop the server.
+Leave that terminal open and visit **http://127.0.0.1:3000** in your browser. The backend allows this origin and **http://localhost:3000**. Saving a source-file edit automatically updates the preview. Press **Ctrl+C** in the terminal to stop the server.
 
 For later sessions, open a terminal in `frontend` and run `pnpm dev`. Repeat `pnpm install --frozen-lockfile` after pulling changes to `package.json` or `pnpm-lock.yaml`, or if `node_modules` is missing.
 
@@ -125,11 +129,12 @@ This first runs TypeScript's checks (`tsc -b`), then asks Vite to make the brows
 
 Start with these components:
 
-1. `src/App.tsx` owns navigation, the address location, and the selected system ID, initially LADWP (`CA1910067`). It passes that ID and its update function to the map, and the same ID to the panel.
-2. `src/SystemInfoPanel.tsx` accepts a system ID and requests `/api/systems/info-panel/{pwsid}`. It handles loading, non-success responses, retry, and cancellation of obsolete requests. Its expandable overview shows backend environmental indicators and dated violation records.
-3. `src/MapView.tsx` requests `/api/systems/map` once and passes the data and selection callback to `SystemMapLayers`. Map loading failures offer a retry button.
+1. `src/App.tsx` owns navigation, the address location, and `selectedPwsid`, initially LADWP (`CA1910067`). It passes that ID and its update function to the map, and the same ID to the panel and leaderboard. `useState` stores the current value; calling its setter updates the screen.
+2. `src/InfoPanel.tsx` replaces the earlier `SystemInfoPanel`. It requests `/api/systems/info-panel/{pwsid}` and system averages, handles loading and retry, caches viewed systems, and cancels obsolete panel requests. Its tabs show the selected system's scores, environmental indicators, water record, and people and system details.
+3. `src/MapView.tsx` requests `/api/systems/map` and passes the data and selection callback to `SystemMapLayers`. It also owns the address pin, starting-view limits, recenter control, and score legend.
 4. `src/SystemMapLayers.tsx` draws each system's polygons and HTML/CSS score badge. Both call `onSelectSystem(pwsid)` to update App's selection. It owns the single hover tooltip and adjusts badge spacing after zooming; it makes no data requests. Native buttons provide Enter/Space support, and their DOM elements are preserved when selection changes so keyboard focus stays in place.
-5. `src/AddressSearch.tsx` handles ArcGIS address suggestions. Its final address-check route is still unfinished.
+5. `src/AddressSearch.tsx` handles ArcGIS suggestions, then posts `{ address }` to `/api/address`. The response supplies `matchedAddress`, `lat`, `lng`, `pwsid`, and `inServiceArea`. Its `onLocate` callback gives App the coordinates, matching ID, and address so the map and panel update together. A match outside the available polygons has coordinates but a null `pwsid`; an address Census cannot place has null address, coordinates, and ID.
+6. `src/Leaderboard.tsx` compares backend system records and highlights the ID selected in App. `src/scoreColor.ts` supplies the common score colors used by the map, badges, legend, and panel.
 
 Other useful files:
 
