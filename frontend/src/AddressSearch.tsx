@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import "./AddressSearch.css";
 
 const ESRI = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-
 // xmin,ymin,xmax,ymax (LA County box): only narrows suggestions, backend is the real check
 const LA_BOUNDS = "-118.9448,33.7036,-117.6463,34.8233";
 
@@ -24,7 +23,8 @@ type CheckResult = {
 
 // The parent passes a function in; we call it once the backend confirms the address.
 type AddressSearchProps = {
-  onLocate: (lat: number, lng: number, pwsid: string | null) => void;
+  // address is the geocoder's matched address; the info panel shows it as "Serves ..."
+  onLocate: (lat: number, lng: number, pwsid: string | null, address: string) => void;
 };
 
 // Esri suggestion text: "1572 Bloomfield Ave, Lakewood, CA, 90712, USA"
@@ -129,11 +129,11 @@ export default function AddressSearch({ onLocate }: AddressSearchProps) {
         return body as CheckResult;
       })
       .then((data) => {
-        if (data.lat == null || data.lng == null) {
+        if (data.matchedAddress == null || data.lat == null || data.lng == null) {
           setStatus("Could not verify that address.");
           return;
         }
-        onLocate(data.lat, data.lng, data.pwsid);
+        onLocate(data.lat, data.lng, data.pwsid, data.matchedAddress);
         setStatus(
           data.inServiceArea
             ? `In service area: ${data.matchedAddress}`
