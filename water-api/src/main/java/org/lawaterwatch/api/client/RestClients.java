@@ -10,18 +10,23 @@ import java.time.Duration;
 final class RestClients {
 
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-    //ArcGIS pages with geometry can take a while
+    //ArcGIS pages with geometry can take a while (data loader only, no user is waiting)
     private static final Duration READ_TIMEOUT = Duration.ofSeconds(90);
 
     private RestClients() {}
 
     static RestClient create(String baseUrl) {
+        return create(baseUrl, READ_TIMEOUT);
+    }
+
+    //For clients a user waits on, so a slow API can't hold a request (and a Tomcat thread) for long
+    static RestClient create(String baseUrl, Duration readTimeout) {
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(CONNECT_TIMEOUT)
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
-        requestFactory.setReadTimeout(READ_TIMEOUT);
+        requestFactory.setReadTimeout(readTimeout);
 
         return RestClient.builder()
                 .baseUrl(baseUrl)
