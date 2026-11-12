@@ -2,29 +2,26 @@ import { useEffect, useRef, useState } from "react";
 import "./AddressSearch.css";
 
 const ESRI = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-
 // xmin,ymin,xmax,ymax (LA County box): only narrows suggestions, backend is the real check
 const LA_BOUNDS = "-118.9448,33.7036,-117.6463,34.8233";
 
-// Spring endpoint: receives { address }, geocodes with Census, runs the polygon check
-const BACKEND_URL = "http://localhost:8080/example";
+const BACKEND_URL = "http://localhost:8080/api/address";
 
 // Shape of one Esri suggestion (text + magicKey, no coordinates yet)
 type Suggestion = { text: string; magicKey: string };
 
 // Shape of the backend response
 type CheckResult = {
-  matched: boolean;
-  inServiceArea: boolean;
-  matchedAddress: string;
-  lat: number;
-  lon: number;
+  matchedAddress: string | null;
+  lat: number | null;
+  lng: number | null;
   pwsid: string | null;
+  inServiceArea: boolean;
 };
 
 // The parent passes a function in; we call it with coordinates once the backend confirms the address.
 type AddressSearchProps = {
-  onLocate: (lat: number, lon: number) => void;
+  onLocate: (lat: number, lon: number, pwsid: string | null, address: string) => void;
 };
 
 // Esri suggestion text: "1572 Bloomfield Ave, Lakewood, CA, 90712, USA"
@@ -124,11 +121,11 @@ export default function AddressSearch({ onLocate }: AddressSearchProps) {
     })
       .then((res) => res.json())
       .then((data: CheckResult) => {
-        if (!data.matched) {
+        if (data.matchedAddress == null || data.lat == null || data.lng == null) {
           setStatus("Could not verify that address.");
           return;
         }
-        onLocate(data.lat, data.lon);
+        onLocate(data.lat, data.lng, data.pwsid, data.matchedAddress);
         setStatus(
           data.inServiceArea
             ? `In service area: ${data.matchedAddress}`
