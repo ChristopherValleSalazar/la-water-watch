@@ -28,6 +28,9 @@ const sortOptions: { value: Sort; label: string }[] = [
   { value: "TRACT", label: "Tracts (fewest first)" },
 ];
 
+// Placeholder rows while the first response is on its way (there are 11 tracked systems)
+const SKELETON_ROWS = 11;
+
 type LeaderboardProps = {
   selectedPwsid: string | null; // the system picked on the map or found by the address search
 };
@@ -145,7 +148,23 @@ export default function Leaderboard({ selectedPwsid }: LeaderboardProps) {
                 <th scope="col">Tracts</th>
               </tr>
             </thead>
-            <tbody className={loading ? "is-loading" : ""}>
+            {/* Re-sorting keeps the old rows (dimmed by .is-loading) until the new order arrives */}
+            <tbody className={loading && rows.length > 0 ? "is-loading" : ""}>
+              {/* First load only: shimmering placeholder rows, one per tracked system */}
+              {loading &&
+                rows.length === 0 &&
+                Array.from({ length: SKELETON_ROWS }, (_, i) => (
+                  <tr key={`skeleton-${i}`} className="skeleton-row" aria-hidden="true">
+                    <th scope="row">
+                      <span className="sk sk-name" />
+                    </th>
+                    {[0, 1, 2, 3, 4].map((c) => (
+                      <td key={c}>
+                        <span className="sk sk-cell" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               {rows.map((row) => {
                 const selected = row.pwsid === selectedPwsid;
                 return (

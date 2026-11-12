@@ -133,6 +133,25 @@
 }
 .leaderboard tbody.is-loading {
   opacity: 0.5;
+  transition: opacity 0.15s;
+}
+/* First-load placeholder rows (the .sk shimmer itself is in styles.css) */
+.leaderboard .sk-name {
+  width: 150px;
+  height: 12px;
+}
+.leaderboard .sk-cell {
+  width: 42px;
+  height: 11px;
+  margin-left: auto; /* numbers are right-aligned, so their placeholders are too */
+}
+@media (max-width: 680px) {
+  .leaderboard .sk-name {
+    width: 120px;
+  }
+  .leaderboard .sk-cell {
+    width: 32px;
+  }
 }
 
 /* The system picked on the map or found by the address search */

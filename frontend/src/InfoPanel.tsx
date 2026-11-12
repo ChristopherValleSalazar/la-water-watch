@@ -61,7 +61,6 @@ type InfoPanelProps = {
 };
 
 // CalEnviroScreen percentiles, averaged over the census tracts each system serves. Higher = worse for all of them.
-// topic = which explanation the (i) button opens (scoreExplanations.ts)
 type TopicKey = "asthma" | "poverty" | "childLead" | "pm25" | "toxReleases" | "gwThreats" | "cleanupSites";
 
 const PERCENTILES: { key: keyof SystemInfo; label: string; topic: TopicKey }[] = [
@@ -146,6 +145,7 @@ function AverageBar({
 }
 
 // Ring gauge with the number in the middle. badness drives the color, so "higher is better" scores pass 100 - value.
+// The small one (percentiles) uses a thinner ring so the number has room to stay readable.
 function Gauge({ value, badness, size }: { value: number | null; badness: number; size: "large" | "small" }) {
   return (
     <div className={`gauge gauge-${size}`}>
@@ -153,23 +153,10 @@ function Gauge({ value, badness, size }: { value: number | null; badness: number
         score={value ?? 0}
         colorScore={100 - badness}
         displayText={value == null ? "–" : String(Math.round(value))}
-        size={size === "large" ? 100 : 48}
-        strokeWidth={size === "large" ? 9 : 11}
+        size={size === "large" ? 100 : 50}
+        strokeWidth={size === "large" ? 9 : 5}
       />
     </div>
-  );
-}
-
-function InfoButton({ topic, onOpen }: { topic: TopicKey; onOpen: (topic: TopicKey) => void }) {
-  return (
-    <button
-      type="button"
-      className="info-button"
-      aria-label={`More information about ${topic}`}
-      onClick={() => onOpen(topic)}
-    >
-      i
-    </button>
   );
 }
 
@@ -201,12 +188,10 @@ function PanelHeader({
   pwsid,
   home,
   onSelect,
-  onClose,
 }: {
   pwsid: string;
   home?: HomeSystem | null;
   onSelect?: (pwsid: string) => void;
-  onClose?: () => void;
 }) {
   const isHome = home?.pwsid === pwsid;
   const homeName = home ? infoCache.get(home.pwsid)?.name : undefined;
@@ -228,27 +213,24 @@ function PanelHeader({
   );
 }
 
-// How long a switch between systems may take before the old panel is replaced by the skeleton
-const SKELETON_DELAY_MS = 300;
-
-// Gray placeholder shapes in the Scores tab's layout (title, tabs, two gauges, two bars, 7 small gauges),
-// shown on first load instead of "Loading…" so the panel doesn't jump when the data arrives.
+// Shimmering placeholder shapes in the Overview tab's layout (title, tabs, the score ring and its text,
+// two average bars, 7 small percentile rings). Shown only on the very first load, so the panel doesn't
+// jump when the data arrives; later switches keep the old panel, dimmed, instead.
 function PanelSkeleton() {
   return (
     <div className="panel-skeleton" aria-hidden="true">
       <span className="sk sk-title" />
       <span className="sk sk-line" />
       <span className="sk sk-tabs" />
-      <div className="score-pair">
-        {[0, 1].map((i) => (
-          <div className="score-cell" key={i}>
-            <span className="sk sk-circle-lg" />
-            <div>
-              <span className="sk sk-word" />
-              <span className="sk sk-word short" />
-            </div>
-          </div>
-        ))}
+      <div className="water-overview">
+        <div className="score-ring">
+          <span className="sk sk-circle-lg" />
+        </div>
+        <div>
+          <span className="sk sk-word" />
+          <span className="sk sk-word" />
+          <span className="sk sk-word short" />
+        </div>
       </div>
       <span className="sk sk-bar" />
       <span className="sk sk-bar" />
@@ -264,17 +246,13 @@ function PanelSkeleton() {
   );
 }
 
-export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClose }: InfoPanelProps) {
+// onClose is in the props but not drawn yet (there is no close button in the panel design)
+export default function InfoPanel({ pwsid, scrollRequest, home, onSelect }: InfoPanelProps) {
   const [info, setInfo] = useState<SystemInfo | null>(null);
   const [avg, setAvg] = useState<AvgScore | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
-  // Switching systems keeps the old panel (dimmed) at first; only a load slower than SKELETON_DELAY_MS
-  // swaps it for the skeleton. Fast switches then don't flash gray, slow ones clearly show loading.
-  const [slowLoad, setSlowLoad] = useState(false);
-  // Which explanation modal is open (null = none). One InfoModal below serves every (i) button.
-  const [topic, setTopic] = useState<TopicKey | null>(null);
   // Bumped by the Retry button (and by coming back online) to run the fetches again
   const [attempt, setAttempt] = useState(0);
   const panelRef = useRef<HTMLElement>(null);
@@ -321,30 +299,23 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
     if (cached) {
       setInfo(cached);
       setLoading(false);
-      setSlowLoad(false);
       return;
     }
     const controller = new AbortController();
+    // Keep showing the previous system (dimmed by .is-loading) until this one arrives
     setLoading(true);
-    const slowTimer = setTimeout(() => setSlowLoad(true), SKELETON_DELAY_MS);
-    const done = () => {
-      clearTimeout(slowTimer);
-      setSlowLoad(false);
-    };
     fetch(`${API_BASE_URL}/systems/info-panel/${encodeURIComponent(pwsid)}`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`Backend responded ${res.status}`);
         return res.json();
       })
       .then((json: SystemInfo) => {
-        done();
         infoCache.set(json.pwsid, json);
         setInfo(json);
         setLoading(false);
       })
       .catch((err) => {
         if (err.name === "AbortError") return;
-        done();
         console.error("Info panel fetch failed:", err);
         setError(
           navigator.onLine
@@ -353,10 +324,7 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
         );
         setLoading(false);
       });
-    return () => {
-      clearTimeout(slowTimer);
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [pwsid, attempt]);
 
   // The requested system failed to load. Don't fall back to the previous system's data: the map already
@@ -376,8 +344,8 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
     );
   }
 
-  // First load, or a switch that's taking a while
-  if (!info || slowLoad) {
+  // Only the very first load shows the shimmer; after that there's always an older panel to dim instead
+  if (!info) {
     return (
       <aside ref={panelRef} className="area-card info-panel" aria-busy={loading} aria-label="Selected water system">
         <p className="panel-kicker">SELECTED WATER SYSTEM</p>
@@ -410,7 +378,7 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
       aria-busy={loading}
       aria-label="Selected water system"
     >
-      <PanelHeader pwsid={info.pwsid} home={home} onSelect={onSelect} onClose={onClose} />
+      <PanelHeader pwsid={info.pwsid} home={home} onSelect={onSelect} />
       <h3 className="water-system-name panel-title">{shortName(info.name)}</h3>
       <p className="system-meta panel-sub">
         {info.pwsid} · {fmt(info.population)} people served
@@ -459,6 +427,26 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect, onClos
           <div className="water-comparison avg-bars">
             <AverageBar label="Water score" value={info.waterScore} avg={avg?.avgWaterScore} higherIsBetter />
             <AverageBar label="Burden score" value={info.burdenScore} avg={avg?.avgBurdenScore} higherIsBetter={false} />
+          </div>
+
+          {/* Every CalEnviroScreen percentile the backend sends, as small rings. Higher = more burdened than
+              other California tracts, so the color is flipped (badness = the percentile itself). */}
+          <div className="pctl-section">
+            <span className="glance-label">Environmental justice</span>
+            <ul className="pctl-grid">
+              {PERCENTILES.map((p) => {
+                const value = info[p.key] as number | null;
+                return (
+                  <li key={p.key}>
+                    <Gauge value={value} badness={value ?? 0} size="small" />
+                    <span>{p.label}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="water-note">
+              Percentiles compared with all California census tracts, weighted by population. Higher means more burdened.
+            </p>
           </div>
           <PanelSources sources={[SOURCES.ces]} />
         </div>

@@ -131,12 +131,19 @@ function MapLegend() {
 export default function MapView({ className, marker, onSelectSystem }: MapViewProps) {
   // data is either GeoJSON from the backend or null before the fetch finishes.
   const [data, setData] = useState<GeoJsonObject | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:8080/api/systems/map")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Backend responded ${res.status}`);
+        return res.json();
+      })
       .then((json: GeoJsonObject) => setData(json))
-      .catch((err) => console.error("Map data fetch failed:", err));
+      .catch((err) => {
+        console.error("Map data fetch failed:", err);
+        setFailed(true);
+      });
   }, []);
 
   return (
@@ -178,6 +185,19 @@ export default function MapView({ className, marker, onSelectSystem }: MapViewPr
         )}
       </MapContainer>
       <MapLegend />
+      {/* Centered over the map until the water system shapes arrive (the base map shows underneath) */}
+      {!data && (
+        <div className="map-loading" role="status">
+          {failed ? (
+            <span>Couldn't load the water systems.</span>
+          ) : (
+            <>
+              <span className="map-spinner" aria-hidden="true" />
+              <span>Map is loading…</span>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

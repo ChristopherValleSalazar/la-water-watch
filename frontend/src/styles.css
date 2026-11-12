@@ -1132,6 +1132,74 @@ button:disabled {
     border: 0;
   }
 
+/* ---- Loading states ---- */
+
+/* Shared shimmer for every skeleton placeholder (info panel and leaderboard): the same light sweep as the
+   address search dropdown */
+.sk {
+  display: block;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #eceee9 25%, #f7f8f4 50%, #eceee9 75%);
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.2s linear infinite;
+}
+@keyframes sk-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Info panel skeleton, shaped like the Overview tab */
+.panel-skeleton .sk-title { width: 70%; height: 20px; margin: 4px 0 10px; }
+.panel-skeleton .sk-line { width: 50%; height: 10px; margin-bottom: 20px; }
+.panel-skeleton .sk-tabs { width: 100%; height: 24px; margin-bottom: 16px; }
+.panel-skeleton .sk-circle-lg { width: 100px; height: 100px; border-radius: 50%; }
+.panel-skeleton .sk-word { width: 85%; height: 11px; margin: 9px 0; }
+.panel-skeleton .sk-word.short { width: 55%; }
+.panel-skeleton .sk-bar { width: 100%; height: 9px; margin: 22px 0 0; border-radius: 999px; }
+.panel-skeleton .pctl-grid { margin-top: 26px; }
+.panel-skeleton .sk-circle-sm { width: 50px; height: 50px; border-radius: 50%; }
+.panel-skeleton .pctl-grid .sk-word.short { width: 60px; margin: 0; }
+
+/* Switching systems: the previous panel stays, a bit transparent, until the new one arrives */
+.info-panel.is-loading > * {
+  opacity: 0.45;
+  transition: opacity 0.15s;
+}
+.info-panel.is-loading {
+  pointer-events: none; /* no clicks on stale data while the new system loads */
+}
+
+/* ---- Environmental justice percentiles (small rings) ---- */
+.pctl-section {
+  margin-top: 24px;
+}
+.pctl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 14px 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pctl-grid li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.25;
+  color: #4a504b;
+}
+/* The ring's number is sized for the big gauge (4.2rem); bring it down to fit the 50px ring */
+.gauge-small .circular-score-number {
+  font-size: 14px;
+  font-weight: 600;
+}
+.pctl-section .water-note {
+  margin: 14px 0 0;
+}
+
 /* Respect a device setting that asks interfaces to reduce animation. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1139,5 +1207,8 @@ button:disabled {
   *::after {
     scroll-behavior: auto !important;
     transition: none !important;
+  }
+  .sk {
+    animation: none; /* a still gray block instead of the sweep */
   }
 }
