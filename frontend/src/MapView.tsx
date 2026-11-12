@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 type MapViewProps = {
   className?: string;
   marker?: [number, number] | null; // [lat, lon] from the address search
+  onSelectSystem?: (pwsid: string) => void; // called with the clicked system's PWSID
 };
 
 const palette = ["#e63946", "#2a9d8f", "#e9c46a", "#457b9d", "#f4a261", "#8338ec", "#06d6a0"];
@@ -40,7 +41,7 @@ function FlyTo({ position }: { position: [number, number] }) {
   return null;
 }
 
-export default function MapView({ className, marker }: MapViewProps) {
+export default function MapView({ className, marker, onSelectSystem }: MapViewProps) {
   // data is either GeoJSON from the backend or null before the fetch finishes.
   const [data, setData] = useState<GeoJsonObject | null>(null);
 
@@ -62,7 +63,19 @@ export default function MapView({ className, marker }: MapViewProps) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenStreetMap contributors"
       />
-      {data && <GeoJSON data={data} style={styleFeature} />}
+      {data && (
+        <GeoJSON
+          data={data}
+          style={styleFeature}
+          eventHandlers={{
+            // propagatedFrom is the polygon that was clicked; its feature carries the backend's properties.
+            click: (e) => {
+              const pwsid = e.propagatedFrom?.feature?.properties?.pwsid;
+              if (pwsid) onSelectSystem?.(pwsid);
+            },
+          }}
+        />
+      )}
       {/* CircleMarker avoids Leaflet's default pin image, which breaks with Vite bundling. */}
       {marker && (
         <>

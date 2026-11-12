@@ -1,6 +1,7 @@
 import { useState } from "react";
 import MapView from "./MapView";
 import AddressSearch from "./AddressSearch";
+import Leaderboard from "./Leaderboard";
 
 // A type describes the allowed shape of one neighborhood record.
 // TypeScript checks these fields while we work, then removes the type information for the browser.
@@ -94,6 +95,9 @@ function App() {
   const [expanded, setExpanded] = useState(false);
   // Shared between AddressSearch (writes it) and MapView (reads it), so it lives here in the parent.
   const [location, setLocation] = useState<[number, number] | null>(null);
+  // The water system the user picked: set by a map click or by the address search.
+  // The leaderboard highlights it; the info panel will read it too once it exists.
+  const [selectedPwsid, setSelectedPwsid] = useState<string | null>(null);
 
   // The detail card still shows the Silver Lake demo record until real data is wired in.
   const selected = defaultArea;
@@ -177,7 +181,12 @@ function App() {
                   and the stories behind the numbers.
                 </p>
                 {/* Address autocomplete lives in AddressSearch.tsx; it reports coordinates up to App. */}
-                <AddressSearch onLocate={(lat, lon) => setLocation([lat, lon])} />
+                <AddressSearch
+                  onLocate={(lat, lng, pwsid) => {
+                    setLocation([lat, lng]);
+                    setSelectedPwsid(pwsid);
+                  }}
+                />
               </section>
 
               <section className="city-section" aria-labelledby="city-title">
@@ -212,7 +221,7 @@ function App() {
                 <div className="map-and-card">
                   {/* The Leaflet map lives in MapView.tsx. */}
                   <div className="map-frame">
-                    <MapView marker={location} />
+                    <MapView marker={location} onSelectSystem={setSelectedPwsid} />
                   </div>
 
                   <aside
@@ -283,6 +292,8 @@ function App() {
                     )}
                   </aside>
                 </div>
+
+                <Leaderboard selectedPwsid={selectedPwsid} />
               </section>
               <p className="demo-disclaimer">
                 <span>ⓘ</span> Independent community tool · Demo values are
