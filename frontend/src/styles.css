@@ -489,13 +489,35 @@ button:disabled {
   border-radius: 22px; /* Rounded corners for the entire map-and-card container */
   overflow: hidden;
   background: #e9eee4;
-  min-height: 390px;
+  /* A fixed height, so the map always fills the row (and its starting view, which is also the zoom-out
+     limit, stays the same size) while a long info panel scrolls inside it instead of stretching the row */
+  height: 680px;
 }
 .map-frame {
   position: relative;
   min-width: 0;
-  min-height: 390px;
+  height: 100%;
   overflow: hidden;
+}
+.map-and-card > .info-panel {
+  min-height: 0;
+  max-height: 100%;
+}
+/* Phones: map on top at a fixed height, then the whole info panel below it (no inner scroll) */
+@media (max-width: 680px) {
+  .map-and-card {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+  .map-frame {
+    height: 360px;
+    flex: 0 0 auto;
+  }
+  .map-and-card > .info-panel {
+    max-height: none;
+    overflow: visible;
+  }
 }
 .map-label {
   position: absolute;

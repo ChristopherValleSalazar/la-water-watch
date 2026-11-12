@@ -14,13 +14,14 @@ type MapViewProps = {
   onSelectSystem?: (pwsid: string) => void; // called with the clicked system's PWSID
 };
 
-// Where the map starts, and where the recenter button brings it back to
-const START_CENTER: [number, number] = [34.05, -118.24];
-const START_ZOOM = 9;
-
-// LA County as [south, west] / [north, east], the same box AddressSearch uses for suggestions,
-// padded 5% so the edges of the county aren't pressed against the map border.
-const LA_COUNTY = latLngBounds([33.7036, -118.9448], [34.8233, -117.6463]).pad(0.05);
+// Where the map starts, and where the recenter button brings it back to.
+// This starting view is also the furthest out a user can zoom or pan (see LockToStartView).
+// The center of the 11 systems' bounding box (lng -118.668 to -118.066, lat 33.704 to 34.337),
+// so the polygons sit in the middle of the map
+const START_CENTER: [number, number] = [34.0205, -118.3669];
+// Tiles only exist at whole zoom levels; Leaflet uses the nearest one and scales it. At 9.25 it stretched
+// zoom-9 tiles (blurry); at 9.5 it uses zoom-10 tiles shrunk to ~71%, which stays sharp.
+const START_ZOOM = 9.5;
 
 // The address pin. A divIcon is plain HTML on Leaflet's marker layer, which is moved but never scaled
 // during zoom animations, so the pin stays the same size and sharp at every zoom (a CircleMarker sits on
@@ -55,13 +56,24 @@ function FlyTo({ position }: { position: [number, number] }) {
   return null;
 }
 
-// Stops zooming out past the zoom where all of LA County fits. That zoom depends on the map's size,
-// so it's worked out on load and again whenever the map resizes (phone rotation, window resize).
-// Leaflet's own zoom control greys out its "−" button once the map reaches this minimum.
-function LockToCounty() {
+// Makes the starting view the limit: no zooming out past START_ZOOM, and no panning outside the area that
+// view shows at the map's current pixel size. Once zoomed in, you can pan anywhere inside that area.
+// The area depends on the map's size, so it's worked out on load and again on every resize.
+// Leaflet's own zoom control greys out its "−" button at the minimum zoom.
+function LockToStartView() {
   const map = useMap();
   useEffect(() => {
-    const update = () => map.setMinZoom(map.getBoundsZoom(LA_COUNTY));
+    const update = () => {
+      // The start view's corners: half the map's size in pixels either side of the start center
+      const center = map.project(START_CENTER, START_ZOOM);
+      const half = map.getSize().divideBy(2);
+      const startView = latLngBounds(
+        map.unproject(center.subtract(half), START_ZOOM),
+        map.unproject(center.add(half), START_ZOOM),
+      );
+      map.setMinZoom(START_ZOOM);
+      map.setMaxBounds(startView);
+    };
     update();
     map.on("resize", update);
     return () => {
@@ -153,15 +165,15 @@ export default function MapView({ className, marker, onSelectSystem }: MapViewPr
         className={className}
         center={START_CENTER}
         zoom={START_ZOOM}
-        maxBounds={LA_COUNTY} // can't pan away from LA County
-        maxBoundsViscosity={1} // 1 = a hard edge, not a rubber band
-        style={{ height: "500px", width: "100%" }}
+        zoomSnap={0.25} // allow quarter zoom levels, so START_ZOOM can sit between Leaflet's whole steps
+        maxBoundsViscosity={1} // 1 = a hard edge, not a rubber band (the bounds are set by LockToStartView)
+        style={{ height: "100%", width: "100%" }} // fills .map-frame, which the layout sizes
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        <LockToCounty />
+        <LockToStartView />
         <RecenterControl />
         {data && (
           <GeoJSON

@@ -75,7 +75,7 @@ const PERCENTILES: { key: keyof SystemInfo; label: string; topic: TopicKey }[] =
 
 // Where each tab's numbers come from, shown at the bottom left of the panel. Links checked 2026-11-12.
 const SOURCES = {
-  ces: { label: "CalEnviroScreen 5.0 (July 2026), OEHHA", href: "https://oehha.ca.gov/calenviroscreen" },
+  ces: { label: "CalEnviroScreen 5.0 (July 2026), OEHHA", href: "https://oehha.ca.gov/calenviroscreen/calenviroscreen-50" },
   sdwis: {
     label: "EPA Safe Drinking Water Information System (SDWIS)",
     href: "https://www.epa.gov/ground-water-and-drinking-water/safe-drinking-water-information-system-sdwis-federal-reporting",
