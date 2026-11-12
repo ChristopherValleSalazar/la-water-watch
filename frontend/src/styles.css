@@ -383,6 +383,10 @@ button:disabled {
   background: #e9eee4;
   min-height: 390px;
 }
+.water-map {
+  height: 500px;
+  width: 100%;
+}
 .map-frame {
   position: relative;
   min-width: 0;
@@ -392,6 +396,52 @@ button:disabled {
 /* SVG focus draws a rectangular box. MapView already draws the selected polygon's thick border. */
 .water-system-boundary:focus {
   outline: none;
+}
+/* Leaflet positions the wrapper; the native button stays centered on its label coordinates. */
+.system-score-button {
+  --badge-size: 26px;
+  position: absolute;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--region-color);
+  border-radius: 50%;
+  background: #fff;
+  color: #24352f;
+  font: 700 12px "Segoe UI", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 5px #24352f33;
+}
+.system-score-button.is-selected {
+  border-width: 3px;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--region-color);
+}
+.system-score-button:focus-visible {
+  outline: 2px solid #24352f;
+  outline-offset: 5px;
+}
+.system-name-tooltip {
+  width: max-content;
+  max-width: min(280px, 70vw);
+  white-space: normal;
+  text-align: center;
+  font: 12px/1.4 "Segoe UI", Arial, sans-serif;
+  pointer-events: none;
+}
+.score-map-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 12px;
+  z-index: 650;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background: #ffffffed;
+  color: #45554a;
+  font-size: 11px;
+  pointer-events: none;
 }
 .map-status {
   position: absolute;
@@ -792,6 +842,9 @@ button:disabled {
 }
 /* At phone widths, stack navigation, map, and selected-neighborhood details. */
 @media (max-width: 680px) {
+  .water-map {
+    height: 330px;
+  }
   .app-shell {
     display: block;
   }

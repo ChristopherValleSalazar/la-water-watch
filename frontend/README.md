@@ -5,17 +5,19 @@ This folder contains an early React frontend based on the team's Figma design. T
 ## What you can try
 
 - Pan and zoom the water-system boundary map.
-- View LADWP's details on initial load, then click a water-system polygon to show that system's name, water score, population served, and service connections.
+- View LADWP's details on initial load, then click a water-system polygon or numbered badge to show that system's name, water score, population served, and service connections.
+- Read each badge's water score; its border matches the region's color. Zoom in to separate nearby badges. The selected badge stays visible and has a stronger border.
+- Hover over a polygon or badge to see the system name in one shared tooltip. Hovering does not change the selected panel.
 - Identify the selected system by its thicker outline, which matches the region's color. Disconnected pieces of the same system are selected together.
 - Open **View water overview** for environmental indicators and violation history.
 - Use **Try again** if the panel cannot load its data.
 - Switch between Explore, Environmental context, and Resources & action.
 - Resize the browser to see the compact layout.
-- Use Tab to reach the overview control, then Enter or Space to expand it.
+- Use Tab to focus a score badge and show its name; press Enter or Space to select it. The overview control also supports the keyboard.
 
 The water score comes from the backend's CalEnviroScreen calculation, not a direct tap-water measurement. Missing values display as “No data” or “—”; zero is a valid score. Unresolved contaminant names display their codes. The panel no longer uses the sample Silver Lake score, ZIP, concern, or comparison.
 
-The former map-layer switch has been removed. Polygon clicks now update the panel; numbered score markers will be added in a later step. Address suggestions call ArcGIS, but selecting an address still calls an unfinished backend route. The resources and context cards remain placeholders.
+The former map-layer switch has been removed. Polygon and badge clicks use the same system-selection function. Badges use scores and interior label coordinates from the existing map response; a missing score displays “—”, and a missing position omits the badge while leaving polygon selection available. Address suggestions call ArcGIS, but selecting an address still calls an unfinished backend route. The resources and context cards remain placeholders.
 
 ## Tools used
 
@@ -125,8 +127,9 @@ Start with these components:
 
 1. `src/App.tsx` owns navigation, the address location, and the selected system ID, initially LADWP (`CA1910067`). It passes that ID and its update function to the map, and the same ID to the panel.
 2. `src/SystemInfoPanel.tsx` accepts a system ID and requests `/api/systems/info-panel/{pwsid}`. It handles loading, non-success responses, retry, and cancellation of obsolete requests. Its expandable overview shows backend environmental indicators and dated violation records.
-3. `src/MapView.tsx` requests `/api/systems/map` once and draws a GeoJSON layer for each system. A polygon click calls `onSelectSystem(pwsid)`, updating App's selection. The selected ID determines the outline and fill emphasis; selection does not re-fetch the boundaries. Map loading failures offer a retry button.
-4. `src/AddressSearch.tsx` handles ArcGIS address suggestions. Its final address-check route is still unfinished.
+3. `src/MapView.tsx` requests `/api/systems/map` once and passes the data and selection callback to `SystemMapLayers`. Map loading failures offer a retry button.
+4. `src/SystemMapLayers.tsx` draws each system's polygons and HTML/CSS score badge. Both call `onSelectSystem(pwsid)` to update App's selection. It owns the single hover tooltip and adjusts badge spacing after zooming; it makes no data requests. Native buttons provide Enter/Space support, and their DOM elements are preserved when selection changes so keyboard focus stays in place.
+5. `src/AddressSearch.tsx` handles ArcGIS address suggestions. Its final address-check route is still unfinished.
 
 Other useful files:
 

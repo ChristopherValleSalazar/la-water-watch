@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip, useMap } from "react-leaflet";
-import type { FeatureCollection, Geometry } from "geojson";
+import { MapContainer, TileLayer, CircleMarker, useMap } from "react-leaflet";
+import SystemMapLayers, { type SystemMap } from "./SystemMapLayers";
 import "leaflet/dist/leaflet.css";
-
-// These are the backend fields this map uses. pwsid identifies the same system in the panel API.
-type SystemProperties = { pwsid: string; name: string };
-type SystemMap = FeatureCollection<Geometry, SystemProperties>;
 
 // Props are inputs from App. onSelectSystem is a function the map calls to report a selection.
 type MapViewProps = {
@@ -14,15 +10,6 @@ type MapViewProps = {
   selectedSystemId: string;
   onSelectSystem: (systemId: string) => void;
 };
-
-const palette = ["#e63946", "#2a9d8f", "#e9c46a", "#457b9d", "#f4a261", "#8338ec", "#06d6a0"];
-
-// Turns a polygon's name into a stable palette index, so it keeps the same color on every render.
-function pickColor(key: string): string {
-  let hash = 0;
-  for (const ch of key) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return palette[hash % palette.length];
-}
 
 // Helper component: useMap() only works INSIDE MapContainer, so this lives in there.
 // It renders nothing; it just moves the map whenever position changes.
@@ -86,40 +73,22 @@ export default function MapView({ className, marker, selectedSystemId, onSelectS
         <p className="map-status" role="status">No water system boundaries are available.</p>
       )}
       <MapContainer
-        className={className}
+        className={className ? `water-map ${className}` : "water-map"}
         center={[34.05, -118.24]}
         zoom={9}
-        style={{ height: "500px", width: "100%" }}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        {/* One GeoJSON layer per system keeps every piece of a MultiPolygon selected together. */}
-        {data?.features.map((feature) => {
-          const { pwsid, name } = feature.properties;
-          // Deriving styles from App's ID also restores the previous system's normal outline.
-          const selected = pwsid === selectedSystemId;
-          const color = pickColor(name);
-
-          return (
-            <GeoJSON
-              key={pwsid}
-              data={feature}
-              style={{
-                className: `water-system-boundary system-${pwsid}`,
-                color,
-                weight: selected ? 4 : 2,
-                fillColor: color,
-                fillOpacity: selected ? 0.55 : 0.4,
-              }}
-              // Send only the ID to App; the existing panel handles fetching the details.
-              eventHandlers={{ click: () => onSelectSystem(pwsid) }}
-            >
-              <Tooltip sticky>{name}</Tooltip>
-            </GeoJSON>
-          );
-        })}
+        {/* The same map response supplies boundaries, badge scores, and their positions. */}
+        {data && (
+          <SystemMapLayers
+            data={data}
+            selectedSystemId={selectedSystemId}
+            onSelectSystem={onSelectSystem}
+          />
+        )}
         {/* CircleMarker avoids Leaflet's default pin image, which breaks with Vite bundling. */}
         {marker && (
           <>
