@@ -139,9 +139,6 @@
 .leaderboard tr.selected > * {
   background: #e3f0da;
 }
-.leaderboard tr.selected > th:first-child {
-  box-shadow: inset 4px 0 0 #4f9a45;
-}
 .leaderboard tr.selected .system-name {
   color: #2f5a2a;
 }

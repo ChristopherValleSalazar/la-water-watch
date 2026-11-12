@@ -1,5 +1,6 @@
 import React from "react";
-import { getScoreColorClass, type CircularScoreProps } from './circularScoreConfig';
+import { type CircularScoreProps } from './circularScoreConfig';
+import { scoreColor } from './scoreColor';
 import './CircularScore.css'; 
 
 export const CircularScore: React.FC<CircularScoreProps> = ({ 
@@ -17,11 +18,8 @@ export const CircularScore: React.FC<CircularScoreProps> = ({
 
     const percentage = score / maxScore;
     const strokeDashoffset = circumference - percentage * circumference;
-    const dynamicColorClass = getScoreColorClass(percentage);
-    const colorPerentage = (colorScore ?? score) / maxScore;
-    const dynamicColor = getScoreColorClass(
-        Math.max(0, Math.min(1, colorPerentage))
-    );
+    // Same color as this score on the map (scoreColor.ts expects 0-100, higher is better)
+    const dynamicColor = scoreColor(((colorScore ?? score) / maxScore) * 100);
 
     return (
         <div className="circular-score-container" style={{ width: size, height: size }}>
@@ -37,7 +35,7 @@ export const CircularScore: React.FC<CircularScoreProps> = ({
                 />
                 {/* Dynamic Progress Circle */}
                 <circle
-                className={"circular-score-progress " + dynamicColorClass}
+                className="circular-score-progress"
                 cx={center}
                 cy={center}
                 r={radius}

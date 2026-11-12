@@ -1,0 +1,88 @@
+/* Positions the legend over the map */
+.map-view {
+  position: relative;
+  height: 100%;
+}
+
+/* Recenter button: inherits Leaflet's .leaflet-bar look; this just centers the icon */
+.recenter-control a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+/* Legend, bottom left. z-index above Leaflet's panes (400) and controls (800). */
+.map-legend-box {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 1000;
+  width: 200px;
+  padding: 9px 11px 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #d9ded3;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(30, 57, 34, 0.15);
+  font-size: 10px;
+  color: #45554a;
+}
+.map-legend-box strong {
+  display: block;
+  font-size: 11px;
+  color: #24352f;
+  margin-bottom: 6px;
+}
+.legend-bar {
+  display: block;
+  height: 9px;
+  border-radius: 999px;
+  opacity: 0.85; /* close to how the polygons look at fillOpacity 0.5 over the map */
+}
+.legend-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.legend-extra {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+.legend-extra span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.legend-pin {
+  border-radius: 50% 50% 50% 0; /* a small pin shape */
+  transform: rotate(-45deg);
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1px #2563eb55;
+}
+.map-legend-box small {
+  display: block;
+  margin-top: 6px;
+  color: #7d867d;
+  font-size: 9px;
+}
+
+/* Phones: a narrower legend so it covers less of the small map */
+@media (max-width: 680px) {
+  .map-legend-box {
+    left: 8px;
+    bottom: 8px;
+    width: 160px;
+    padding: 7px 8px 6px;
+    font-size: 9px;
+  }
+  .legend-ends span {
+    font-size: 8px;
+  }
+}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./Leaderboard.css";
+import { shortName } from "./systemName";
 
 const LEADERBOARD_URL = "http://localhost:8080/api/systems/leaderboard";
 
@@ -154,7 +155,10 @@ export default function Leaderboard({ selectedPwsid }: LeaderboardProps) {
                     aria-current={selected ? "true" : undefined}
                   >
                     <th scope="row">
-                      <span className="system-name">{row.name}</span>
+                      {/* Same short name as the info panel title; the full official name shows on hover */}
+                      <span className="system-name" title={row.name}>
+                        {shortName(row.name)}
+                      </span>
                       <span className="system-pwsid">{row.pwsid}</span>
                     </th>
                     <td>{show(row.population)}</td>
