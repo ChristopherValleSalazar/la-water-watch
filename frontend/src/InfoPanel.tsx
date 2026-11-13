@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CircularScore } from "./CircularScore";
+import { smoothScrollIntoView } from "./smoothScroll";
 import { displayName, shortName } from "./systemName";
 import { PIN_COLOR, PIN_DOT, PIN_PATH, PIN_VIEWBOX } from "./pinIcon";
 import { BETTER_COLOR, WORSE_COLOR, scoreColor, scoreTint } from "./scoreColor";
@@ -264,10 +265,10 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect }: Info
     if (!scrollRequest || scrollRequest.id === handledScroll.current) return;
     if (loading || info?.pwsid !== pwsid) return;
     handledScroll.current = scrollRequest.id;
-    if (scrollRequest.mobileOnly && !window.matchMedia("(max-width: 940px)").matches) return;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // "nearest": scroll only as far as needed to show the whole panel; no movement if it's already visible
-    panelRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+    // 680px is where the map and the panel stack (styles.css); wider, the panel is already beside the map
+    if (scrollRequest.mobileOnly && !window.matchMedia("(max-width: 680px)").matches) return;
+    // Scrolls only as far as needed, with a slow eased pan (smoothScroll.ts); no movement if already visible
+    if (panelRef.current) smoothScrollIntoView(panelRef.current);
   }, [scrollRequest, loading, info, pwsid]);
 
   // The averages never change while the app runs, so fetch them once (again on retry if that first try failed).

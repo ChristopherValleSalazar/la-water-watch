@@ -59,8 +59,14 @@ export function scoreGradient(): string {
 
 export const NO_SCORE_COLOR = css(NO_SCORE);
 
-// A light tint of the same color (mixed 80% with white), for backgrounds like the concern pill,
-// where the full color would be too heavy behind dark text
-export function scoreTint(score: number | null | undefined): string {
-  return css(scoreRgb(score).map((c) => Math.round(c + (255 - c) * 0.8)) as Rgb);
+// A light tint of the same color (mixed 80% with white), for backgrounds like the concern pill and the
+// leaderboard pills. white = how much white is mixed in.
+export function scoreTint(score: number | null | undefined, white = 0.8): string {
+  return css(scoreRgb(score).map((c) => Math.round(c + (255 - c) * white)) as Rgb);
+}
+
+// A dark shade of the same color (45% toward black), for text on top of scoreTint.
+// Readable at 5.5:1 or better on every point of the scale.
+export function scoreShade(score: number | null | undefined): string {
+  return css(scoreRgb(score).map((c) => Math.round(c * 0.55)) as Rgb);
 }

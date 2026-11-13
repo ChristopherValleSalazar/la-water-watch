@@ -91,7 +91,7 @@
 .leaderboard th,
 .leaderboard td {
   padding: 10px 12px;
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
   border-bottom: 1px solid #eef0e8;
 }
@@ -120,6 +120,16 @@
 .leaderboard thead th[title] {
   cursor: help;
 }
+.leaderboard tr.clickable {
+  cursor: pointer;
+}
+.leaderboard tr.clickable:not(.selected):hover > * {
+  background: #f3f6ef;
+}
+.leaderboard tr.clickable:focus-visible {
+  outline: 2px solid #9baf7d;
+  outline-offset: -2px;
+}
 .leaderboard tbody tr:last-child > * {
   border-bottom: 0;
 }
@@ -142,6 +152,16 @@
   color: #98a097;
   margin-top: 2px;
 }
+/* Every pill is the same width, so they line up in neat columns whatever the number */
+.score-chip {
+  display: inline-block;
+  width: 44px;
+  padding: 3px 0;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
 .leaderboard tbody.is-loading {
   opacity: 0.5;
   transition: opacity 0.15s;
@@ -154,7 +174,7 @@
 .leaderboard .sk-cell {
   width: 42px;
   height: 11px;
-  margin-left: auto; /* numbers are right-aligned, so their placeholders are too */
+  margin: 0 auto;
 }
 @media (max-width: 680px) {
   .leaderboard .sk-name {

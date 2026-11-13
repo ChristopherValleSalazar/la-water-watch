@@ -1,7 +1,7 @@
 import { useState } from "react";
 import MapView from "./MapView";
 import AddressSearch from "./AddressSearch";
-import InfoPanel from "./InfoPanel";
+import InfoPanel, { type ScrollRequest } from "./InfoPanel";
 import Leaderboard from "./Leaderboard";
 
 // This is a TypeScript "union": activeNav can only be one of these three exact strings.
@@ -41,6 +41,12 @@ function App() {
   const [location, setLocation] = useState<[number, number] | null>(null);
   // One selection connects address results, polygons, badges, the panel, and the leaderboard.
   const [selectedPwsid, setSelectedPwsid] = useState<string | null>("CA1910067");
+  // Asks InfoPanel to scroll into view once the selected system has loaded; a new id = a new request
+  const [scrollRequest, setScrollRequest] = useState<ScrollRequest | null>(null);
+  const selectAndScroll = (pwsid: string, mobileOnly: boolean) => {
+    setSelectedPwsid(pwsid);
+    setScrollRequest((prev) => ({ id: (prev?.id ?? 0) + 1, mobileOnly }));
+  };
   const [home, setHome] = useState<{ pwsid: string; address: string } | null>(null);
 
   // JSX is HTML-like page markup. Curly braces insert JavaScript values and expressions.
@@ -152,12 +158,14 @@ function App() {
                     <MapView
                       marker={location}
                       selectedSystemId={selectedPwsid}
-                      onSelectSystem={setSelectedPwsid}
+                      // Phones: the panel is below the map, so scroll down to it. Desktop: it's already beside the map.
+                      onSelectSystem={(pwsid) => selectAndScroll(pwsid, true)}
                     />
                   </div>
                   {selectedPwsid && (
                     <InfoPanel
                       pwsid={selectedPwsid}
+                      scrollRequest={scrollRequest}
                       home={home}
                       onSelect={setSelectedPwsid}
                       onClose={() => setSelectedPwsid(null)}
@@ -166,7 +174,8 @@ function App() {
                 </div>
 
                 {/* Highlights the same system the info panel shows */}
-                <Leaderboard selectedPwsid={selectedPwsid} />
+                {/* Any screen: scroll up to the panel. On desktop it shares a row with the map, so that's the map too. */}
+                <Leaderboard selectedPwsid={selectedPwsid} onSelectSystem={(pwsid) => selectAndScroll(pwsid, false)} />
               </section>
               <p className="demo-disclaimer">
                 <span>ⓘ</span> Independent community tool · Demo values are
