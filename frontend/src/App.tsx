@@ -257,7 +257,11 @@ function App() {
                     title: "Ask a question",
                     text: "Prepare useful questions for your water provider or local representative.",
                     href: "https://nationalwaterservice.com/7-questions-to-ask-your-local-water-company/"
-
+                  },
+                  {
+                    title: "Watch: How to boil water safely",
+                    text: "Learn how to boil water at home to kill germs during a boil-water notice. Boiling does not remove lead or chemicals.",
+                    href: "https://www.youtube.com/watch?v=K5j12tvXeA0",
                   },
                 ].map((item) => (
                   <article className="info-card" key={item.title}>
