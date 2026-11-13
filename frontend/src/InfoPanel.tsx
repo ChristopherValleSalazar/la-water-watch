@@ -365,8 +365,8 @@ export default function InfoPanel({ pwsid, scrollRequest, home, onSelect }: Info
   const overviewMetrics = [
     { value: compact(info.population), label: "People served" },
     { value: compact(info.serviceConnections), label: "Service connections" },
-    { value: fmt(info.tractCount), label: "Census tracts" },
-    { value: compact(info.tractPopulation), label: "Tract population" },
+    { value: fmt(info.tractCount), label: "Neighborhoods scored (census tracts)" },
+    { value: compact(info.tractPopulation), label: "People in those neighborhoods" },
     { value: String(info.violations.length), label: "EPA violations" },
     { value: String(healthBased), label: "Health-based" },
   ];

@@ -109,6 +109,17 @@
   left: 0;
   background: #fff;
 }
+.leaderboard thead .th-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.leaderboard thead th[title] {
+  cursor: help;
+}
 .leaderboard tbody tr:last-child > * {
   border-bottom: 0;
 }

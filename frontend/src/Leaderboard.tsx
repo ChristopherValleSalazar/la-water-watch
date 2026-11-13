@@ -25,7 +25,7 @@ const sortOptions: { value: Sort; label: string }[] = [
   { value: "BURDENSCORE", label: "Burden score (lowest first)" },
   { value: "VIOLATIONS", label: "Violations (fewest first)" },
   { value: "POPULATION", label: "Population (largest first)" },
-  { value: "TRACT", label: "Tracts (fewest first)" },
+  { value: "TRACT", label: "Neighborhoods scored (fewest first)" },
 ];
 
 // Placeholder rows while the first response is on its way (there are 11 tracked systems)
@@ -145,7 +145,10 @@ export default function Leaderboard({ selectedPwsid }: LeaderboardProps) {
                 <th scope="col">Water score</th>
                 <th scope="col">Burden score</th>
                 <th scope="col">Violations</th>
-                <th scope="col">Tracts</th>
+                <th scope="col" title="Census tracts are small areas the U.S. Census Bureau draws, about 4,000 people each. CalEnviroScreen scores every tract; this is how many make up this system's score.">
+                  Neighborhoods
+                  <span className="th-note">census tracts</span>
+                </th>
               </tr>
             </thead>
             {/* Re-sorting keeps the old rows (dimmed by .is-loading) until the new order arrives */}

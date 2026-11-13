@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GeoJSON, Marker, useMap, useMapEvents } from "react-leaflet";
-import { divIcon, tooltip, type LatLngExpression, type Marker as LeafletMarker, type Point } from "leaflet";
+import { GeoJSON, Marker, Polyline, useMap, useMapEvents } from "react-leaflet";
+import { divIcon, point as pixelPoint, tooltip, type LatLng, type LatLngExpression, type Marker as LeafletMarker, type Point } from "leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { scoreColor } from "./scoreColor";
 
@@ -29,8 +29,47 @@ type SystemRegionProps = HoverProps & {
   selected: boolean;
   badgeSize: number;
   showBadge: boolean;
+  badgePosition: LatLng | null;
+  showLeader: boolean;
   onSelectSystem: (systemId: string) => void;
 };
+
+const BADGE_GAP = 4;
+const LEADER_MIN_PX = 6;
+
+type Badge = { pwsid: string; anchor: Point; point: Point; radius: number; fixed: boolean };
+
+// Pushes overlapping badges apart in screen pixels; the selected (fixed) badge stays put.
+function spreadBadges(badges: Badge[]): void {
+  for (let round = 0; round < 80; round++) {
+    let moved = false;
+    for (let i = 0; i < badges.length; i++) {
+      for (let j = i + 1; j < badges.length; j++) {
+        const a = badges[i];
+        const b = badges[j];
+        const need = a.radius + b.radius + BADGE_GAP;
+        let dx = b.point.x - a.point.x;
+        let dy = b.point.y - a.point.y;
+        let dist = Math.hypot(dx, dy);
+        if (dist >= need - 0.5) continue;
+        if (dist < 0.01) {
+          dx = 1;
+          dy = 0;
+          dist = 1;
+        }
+        const push = need - dist;
+        const ux = dx / dist;
+        const uy = dy / dist;
+        const shareA = a.fixed ? 0 : b.fixed ? 1 : 0.5;
+        const shareB = 1 - shareA;
+        a.point = pixelPoint(a.point.x - ux * push * shareA, a.point.y - uy * push * shareA);
+        b.point = pixelPoint(b.point.x + ux * push * shareB, b.point.y + uy * push * shareB);
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+}
 
 // This type guard checks coordinates and tells TypeScript they are numbers inside the guarded block.
 function hasLabel(system: SystemProperties): system is SystemProperties & { labelLat: number; labelLng: number } {
@@ -40,7 +79,7 @@ function hasLabel(system: SystemProperties): system is SystemProperties & { labe
 
 // A small component keeps Leaflet's marker/DOM details out of MapView and App.
 function SystemRegion({
-  feature, selected, badgeSize, showBadge, onSelectSystem, showName, hideName,
+  feature, selected, badgeSize, showBadge, badgePosition, showLeader, onSelectSystem, showName, hideName,
 }: SystemRegionProps) {
   const system = feature.properties;
   // Share main's score palette with the legend, panel, and leaderboard.
@@ -94,17 +133,23 @@ function SystemRegion({
           mouseout: hideName,
         }}
       />
-      {showBadge && hasLabel(system) && (
+      {showBadge && showLeader && badgePosition && hasLabel(system) && (
+        <Polyline
+          positions={[[system.labelLat, system.labelLng], badgePosition]}
+          pathOptions={{ color: "#24352f", weight: 1.5, opacity: 0.7, interactive: false }}
+        />
+      )}
+      {showBadge && badgePosition && hasLabel(system) && (
         <Marker
           ref={markerRef}
-          position={[system.labelLat, system.labelLng]}
+          position={badgePosition}
           icon={icon}
           // The inner button handles keyboard input; avoid a second tab stop on its wrapper.
           keyboard={false}
           zIndexOffset={selected ? 1000 : 0}
           eventHandlers={{
             click: () => onSelectSystem(system.pwsid),
-            mouseover: () => showName(system.name, [system.labelLat, system.labelLng]),
+            mouseover: () => showName(system.name, badgePosition),
             mouseout: hideName,
           }}
         />
@@ -147,44 +192,39 @@ export default function SystemMapLayers({ data, selectedSystemId, onSelectSystem
     return () => hideName();
   }, [hideName]);
 
-  // Offscreen badges aren't tab stops. Polygons remain available even when their label is offscreen.
   const { zoom, bounds } = view;
-  const candidates = data.features.filter(({ properties }) =>
-    hasLabel(properties) && bounds.contains([properties.labelLat, properties.labelLng]));
-  // Only reconsider sizes/spacing after movement or selection changes, never during panning.
   const size = Math.min(36, Math.max(26, 26 + (zoom - 9) * 2));
-  const placed: { point: Point; radius: number }[] = [];
-  const visibleBadges = new Set<string>();
-  const ordered = candidates.sort((a, b) =>
-    Number(b.properties.pwsid === selectedSystemId) - Number(a.properties.pwsid === selectedSystemId));
-
-  // Selected first: nearby badges yield to it. Zooming in separates the other labels.
-  for (const { properties: system } of ordered) {
-    if (!hasLabel(system)) continue;
-    const point = map.project([system.labelLat, system.labelLng], zoom);
-    const radius = (system.pwsid === selectedSystemId ? size + 4 : size) / 2;
-    if (placed.some((other) => point.distanceTo(other.point) < radius + other.radius + 4)) continue;
-    placed.push({ point, radius });
-    visibleBadges.add(system.pwsid);
-  }
-
-  const hasHiddenBadges = visibleBadges.size < candidates.length;
+  const badges: Badge[] = data.features
+    .map(({ properties: system }) => {
+      if (!hasLabel(system)) return null;
+      const anchor = map.project([system.labelLat, system.labelLng], zoom);
+      const selected = system.pwsid === selectedSystemId;
+      return { pwsid: system.pwsid, anchor, point: anchor, radius: (selected ? size + 4 : size) / 2, fixed: selected };
+    })
+    .filter((badge): badge is Badge => badge != null);
+  spreadBadges(badges);
+  const layout = new Map(badges.map((badge) => [badge.pwsid, badge]));
 
   return (
     <>
-      {hasHiddenBadges && <div className="score-map-hint">Zoom in to see nearby scores.</div>}
-      {data.features.map((feature) => (
+      {data.features.map((feature) => {
+        const badge = layout.get(feature.properties.pwsid);
+        const badgePosition = badge ? map.unproject(badge.point, zoom) : null;
+        return (
         <SystemRegion
           key={feature.properties.pwsid}
           feature={feature}
           selected={feature.properties.pwsid === selectedSystemId}
           badgeSize={feature.properties.pwsid === selectedSystemId ? size + 4 : size}
-          showBadge={visibleBadges.has(feature.properties.pwsid)}
+          showBadge={badgePosition != null && bounds.contains(badgePosition)}
+          badgePosition={badgePosition}
+          showLeader={badge != null && badge.point.distanceTo(badge.anchor) > LEADER_MIN_PX}
           onSelectSystem={onSelectSystem}
           showName={showName}
           hideName={hideName}
         />
-      ))}
+        );
+      })}
     </>
   );
 }

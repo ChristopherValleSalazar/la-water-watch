@@ -43,19 +43,6 @@
   font: 12px/1.4 "Segoe UI", Arial, sans-serif;
   pointer-events: none;
 }
-.score-map-hint {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 650;
-  padding: 7px 10px;
-  border-radius: 4px;
-  background: #ffffffed;
-  color: #45554a;
-  font-size: 11px;
-  pointer-events: none;
-}
-
 /* Recenter button: inherits Leaflet's .leaflet-bar look; this just centers the icon */
 .recenter-control a {
   display: flex;
