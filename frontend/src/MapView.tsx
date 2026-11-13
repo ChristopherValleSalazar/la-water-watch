@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, Marker, useMap } from "react-leaflet";
-import type { Feature, GeoJsonObject } from "geojson";
-import { Control, DomEvent, DomUtil, divIcon, latLngBounds, type PathOptions } from "leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { Control, DomEvent, DomUtil, divIcon, latLngBounds } from "leaflet";
+import SystemMapLayers, { type SystemMap } from "./SystemMapLayers";
 import "leaflet/dist/leaflet.css";
 import "./MapView.css";
-import { NO_SCORE_COLOR, scoreColor, scoreGradient } from "./scoreColor";
+import { NO_SCORE_COLOR, scoreGradient } from "./scoreColor";
 import { PIN_COLOR, pinSvg } from "./pinIcon";
 
-// Props type: describes what <MapView /> accepts. The ? makes each one optional.
+// Props are inputs from App. A ? marks an optional input; null means no system is selected.
 type MapViewProps = {
   className?: string;
   marker?: [number, number] | null; // [lat, lon] from the address search
-  onSelectSystem?: (pwsid: string) => void; // called with the clicked system's PWSID
+  selectedSystemId: string | null;
+  onSelectSystem: (pwsid: string) => void; // reports polygon or badge selection to App
 };
 
 // Where the map starts, and where the recenter button brings it back to.
@@ -34,17 +35,6 @@ const addressPin = divIcon({
   iconSize: [PIN_WIDTH, PIN_HEIGHT],
   iconAnchor: [PIN_WIDTH / 2, PIN_HEIGHT],
 });
-
-// Leaflet calls this once per polygon as it draws, so the color comes straight from that feature's waterScore.
-function styleFeature(feature?: Feature): PathOptions {
-  const color = scoreColor(feature?.properties?.waterScore);
-  return {
-    color, // outline
-    weight: 2, // outline thickness
-    fillColor: color, // inside
-    fillOpacity: 0.5,
-  };
-}
 
 // Helper component: useMap() only works INSIDE MapContainer, so this lives in there.
 // It renders nothing; it just moves the map whenever position changes.
@@ -140,23 +130,38 @@ function MapLegend() {
   );
 }
 
-export default function MapView({ className, marker, onSelectSystem }: MapViewProps) {
+export default function MapView({ className, marker, selectedSystemId, onSelectSystem }: MapViewProps) {
   // data is either GeoJSON from the backend or null before the fetch finishes.
-  const [data, setData] = useState<GeoJsonObject | null>(null);
+  const [data, setData] = useState<SystemMap | null>(null);
   const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
+  // Selection reuses this response; only a retry downloads the boundaries again.
   useEffect(() => {
-    fetch("http://localhost:8080/api/systems/map")
+    const controller = new AbortController();
+    let current = true;
+    setFailed(false);
+    fetch("http://localhost:8080/api/systems/map", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`Backend responded ${res.status}`);
         return res.json();
       })
-      .then((json: GeoJsonObject) => setData(json))
+      .then((json: SystemMap) => {
+        if (json.type !== "FeatureCollection" || !Array.isArray(json.features)) {
+          throw new Error("Unexpected map data");
+        }
+        if (current) setData(json);
+      })
       .catch((err) => {
+        if (!current) return;
         console.error("Map data fetch failed:", err);
         setFailed(true);
       });
-  }, []);
+    return () => {
+      current = false;
+      controller.abort();
+    };
+  }, [attempt]);
 
   return (
     // The wrapper lets the legend sit on top of the map without being part of Leaflet
@@ -176,16 +181,10 @@ export default function MapView({ className, marker, onSelectSystem }: MapViewPr
         <LockToStartView />
         <RecenterControl />
         {data && (
-          <GeoJSON
+          <SystemMapLayers
             data={data}
-            style={styleFeature}
-            eventHandlers={{
-              // propagatedFrom is the polygon that was clicked; its feature carries the backend's properties.
-              click: (e) => {
-                const pwsid = e.propagatedFrom?.feature?.properties?.pwsid;
-                if (pwsid) onSelectSystem?.(pwsid);
-              },
-            }}
+            selectedSystemId={selectedSystemId}
+            onSelectSystem={onSelectSystem}
           />
         )}
         {/* Our own divIcon pin, not Leaflet's default pin image (that one breaks with Vite bundling). */}
@@ -201,7 +200,10 @@ export default function MapView({ className, marker, onSelectSystem }: MapViewPr
       {!data && (
         <div className="map-loading" role="status">
           {failed ? (
-            <span>Couldn't load the water systems.</span>
+            <>
+              <span role="alert">Couldn't load the water systems.</span>
+              <button type="button" onClick={() => setAttempt((value) => value + 1)}>Retry</button>
+            </>
           ) : (
             <>
               <span className="map-spinner" aria-hidden="true" />
@@ -210,6 +212,7 @@ export default function MapView({ className, marker, onSelectSystem }: MapViewPr
           )}
         </div>
       )}
+      {data?.features.length === 0 && <div className="map-loading" role="status">No water systems are available.</div>}
     </div>
   );
 }

@@ -4,8 +4,6 @@ import AddressSearch from "./AddressSearch";
 import InfoPanel from "./InfoPanel";
 import Leaderboard from "./Leaderboard";
 
-// A type describes the allowed shape of one neighborhood record.
-// TypeScript checks these fields while we work, then removes the type information for the browser.
 // This is a TypeScript "union": activeNav can only be one of these three exact strings.
 type Page = "explore" | "context" | "resources";
 // The [] means this is a list. Each item must have an allowed page id, a label, and an icon glyph.
@@ -39,9 +37,9 @@ function App() {
   // useState returns a current value and a setter: [value, updateFunction].
   // React recalculates this component and updates the screen when a setter is called.
   const [activeNav, setActiveNav] = useState<Page>("explore");
-  // These values are temporary page memory: map layer and the overview toggle.
   // Shared between AddressSearch (writes it) and MapView (reads it), so it lives here in the parent.
   const [location, setLocation] = useState<[number, number] | null>(null);
+  // One selection connects address results, polygons, badges, the panel, and the leaderboard.
   const [selectedPwsid, setSelectedPwsid] = useState<string | null>("CA1910067");
   const [home, setHome] = useState<{ pwsid: string; address: string } | null>(null);
 
@@ -151,7 +149,11 @@ function App() {
                   {/* The Leaflet map lives in MapView.tsx. */}
                   <div className="map-frame">
                     {/* Clicking a polygon opens its info panel and highlights its leaderboard row */}
-                    <MapView marker={location} onSelectSystem={setSelectedPwsid} />
+                    <MapView
+                      marker={location}
+                      selectedSystemId={selectedPwsid}
+                      onSelectSystem={setSelectedPwsid}
+                    />
                   </div>
                   {selectedPwsid && (
                     <InfoPanel

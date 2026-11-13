@@ -505,6 +505,68 @@ button:disabled {
 }
 /* Phones: map on top at a fixed height, then the whole info panel below it (no inner scroll) */
 @media (max-width: 680px) {
+  /* Stack navigation above the page so the fixed desktop sidebar doesn't squeeze the map. */
+  .app-shell {
+    display: block;
+  }
+  .sidebar {
+    position: relative;
+    top: auto;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    padding: 13px 16px 10px;
+    display: block;
+  }
+  .brand {
+    font-size: 22px;
+  }
+  .brand-caption,
+  .sidebar-story,
+  .about-link {
+    display: none;
+  }
+  .primary-nav {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+    overflow-x: auto;
+  }
+  .nav-link {
+    height: 35px;
+    padding: 0 9px;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 10px;
+  }
+  .nav-link i {
+    display: none;
+  }
+  .topbar {
+    height: 48px;
+    padding: 0 17px;
+  }
+  .topbar-right {
+    font-size: 9px;
+    gap: 5px;
+  }
+  .content {
+    padding: 29px 16px 25px;
+  }
+  .intro h1,
+  .secondary-view h1 {
+    font-size: 30px;
+  }
+  .mobile-break {
+    display: block;
+  }
+  .title-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .context-grid {
+    grid-template-columns: 1fr;
+  }
   .map-and-card {
     display: flex;
     flex-direction: column;

@@ -4,6 +4,58 @@
   height: 100%;
 }
 
+/* Selection uses the polygon outline; hide the browser's rectangular SVG focus box. */
+.water-system-boundary:focus {
+  outline: none;
+}
+
+/* Leaflet places the wrapper. This native button stays centered on its label coordinates. */
+.system-score-button {
+  --badge-size: 26px;
+  position: absolute;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--region-color);
+  border-radius: 50%;
+  background: #fff;
+  color: #24352f;
+  font: 700 12px "Segoe UI", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 5px #24352f33;
+}
+.system-score-button.is-selected {
+  border-width: 3px;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--region-color);
+}
+.system-score-button:focus-visible {
+  outline: 2px solid #24352f;
+  outline-offset: 5px;
+}
+.system-name-tooltip {
+  width: max-content;
+  max-width: min(280px, 70vw);
+  white-space: normal;
+  text-align: center;
+  font: 12px/1.4 "Segoe UI", Arial, sans-serif;
+  pointer-events: none;
+}
+.score-map-hint {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 650;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background: #ffffffed;
+  color: #45554a;
+  font-size: 11px;
+  pointer-events: none;
+}
+
 /* Recenter button: inherits Leaflet's .leaflet-bar look; this just centers the icon */
 .recenter-control a {
   display: flex;
@@ -114,6 +166,14 @@
   border-top-color: #4f9a55;
   border-radius: 50%;
   animation: map-spin 0.8s linear infinite;
+}
+.map-loading button {
+  pointer-events: auto;
+  padding: 5px 9px;
+  border: 1px solid #d9ded3;
+  border-radius: 4px;
+  background: #f5f7f1;
+  color: inherit;
 }
 @keyframes map-spin {
   to {
